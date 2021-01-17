@@ -49,7 +49,7 @@ namespace general
 			_day = d._day;
 			_month = d._month;
 			_year = d._year;
-			d._day = d._month = d._year = 0;
+			d._year = d._day = d._month = 0;
 		}
 
 		Date& Date::operator=(Date&& d) noexcept
@@ -57,7 +57,7 @@ namespace general
 			_day = d._day;
 			_month = d._month;
 			_year = d._year;
-			d._day = d._month = d._year = 0;
+			d._year = d._day = d._month = 0;
 			return *this;
 		}
 
@@ -218,7 +218,7 @@ namespace general
 		{
 			Date d = dt.get_date();
 			Time t = dt.get_time();
-			unsigned int a = (14 - d.get_month()) / 12,
+			size_t a = (14 - d.get_month()) / 12,
 				y = 4800 + d.get_year() - a,
 				m = d.get_month() + 12 * a - 3;
 			_day = d.get_day() + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
@@ -234,10 +234,11 @@ namespace general
 				d = (4 * c + 3) / 1461,
 				e = c - (1461 * d) / 4,
 				m = (5 * e + 2) / 153,
-				day = e - (153 * m + 2) / 5 + 1,
-				month = m + 3 - 12 * (m / 10),
 				year = 100 * b + d - 4800 + (m / 10),
 				t = static_cast<size_t>(_time * SEC_PER_DAY * 1e3);
+			unsigned short 
+				day = static_cast<unsigned short>(e - (153 * m + 2) / 5 + 1),
+				month = static_cast<unsigned short>(m + 3 - 12 * (m / 10));
 			auto millisec = static_cast<unsigned short>(t % 1000);
 			t /= 1000;
 			auto second = static_cast<unsigned short>(t % 60);

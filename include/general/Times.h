@@ -130,7 +130,7 @@ namespace general
 			JD& operator = (const double jd);
 			
 			size_t JDN() const { return _day; }
-			size_t T() const { return _time; }
+			double T() const { return _time; }
 			DateTime to_datetime() const;
 			double to_double() const;
 
