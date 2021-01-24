@@ -30,5 +30,8 @@ namespace general
     namespace math
     {
         inline constexpr double PI{ 3.1415926535 };
+	inline constexpr double PI_2{ PI * 0.5 };
+	inline constexpr double PI3_2{ PI * 1.5 };
+	inline constexpr double PI2{ PI * 2 };
     }
 }
