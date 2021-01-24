@@ -15,13 +15,14 @@ add_library(
 	src/Times.cpp
 	src/Mathematics.cpp
 	src/Legendre.cpp
-	src/Matrix3x3.cpp)
+	src/Matrix3x3.cpp 
+	src/Vector.cpp 
+	src/Matrix.cpp 
+)
 
 add_executable(
 	TestGeneral
-	test/Test.cpp
-	src/Legendre.cpp
-	src/Matrix3x3.cpp)
+	test/Test.cpp)
 
 target_link_libraries(
 	TestGeneral

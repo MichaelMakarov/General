@@ -2,6 +2,8 @@
 #include "GeneralConstants.h"
 #include "Legendre.h"
 #include "Matrix3x3.h"
+#include "Vector.h"
+#include "Matrix.h"
 #include "Geometry.h"
 #include <iostream>
 
@@ -12,12 +14,16 @@ using namespace general::math;
 void test_datetime();
 void test_legendre();
 void test_matrix3();
+void test_vector();
+void test_matrix();
 
 int main()
 {
 	test_datetime();
 	test_legendre();
 	test_matrix3();
+	test_vector();
+	test_matrix();
 	return 0;
 }
 
@@ -129,4 +135,52 @@ void test_matrix3()
 	std::cout << "M5: " << m5 << std::endl;
 	std::cout << "M6: " << m6 << std::endl;
 	std::cout << "M5 * M6: " << m5 * m6 << std::endl;
+}
+
+void test_vector()
+{
+	std::cout << "\n...Vector tests...\n";
+
+	Vector vec1;
+	auto vec2{ Vector(10) };
+	Vector vec3 = { 2.3, -0.1, 9.8, 12, 4.3, -1.5, 0.9 };
+	std::vector<double> array = { 5, 5, 5, 5, 5, 1, 1, 1, 2 };
+	Vector vec4{ array };
+	auto vec5{ Vector(array.begin(), array.end()) };
+
+	std::cout << "empty vector of size 0: " << vec1 << std::endl;
+	std::cout << "empty vector of size 10: " << vec2 << std::endl;
+	std::cout << "vector 3: " << vec3 << std::endl;
+	std::cout << "vector 4: " << vec4 << std::endl;
+	std::cout << "vector 5: " << vec5 << std::endl;
+
+	std::cout << "vector 2 length = " << vec2.length() << std::endl;
+	std::cout << "vector 3 length = " << vec3.length() << std::endl;
+	std::cout << "vector 3 * vector 4 = " << vec3 * vec4 << std::endl;
+}
+
+void test_matrix()
+{
+	std::cout << "\n...Matrix tests...\n";
+
+	auto list = { 4.0, 5.0, -1.0, -5.6, 10.0, 2.34, -0.31, 3.33, -9.0 };
+	auto vector{ std::vector(list) };
+	const double array2d[2][5]{ { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 0 } };
+	Matrix m1;
+	auto m2{ Matrix(5, 4) };
+	auto m3{ Matrix(3, 3, vector) };
+	auto m4{ Matrix(array2d) };
+	auto v{ Vector({2, -1, 0, 0, 3}) };
+	const double n{ 0.5 };
+
+	std::cout << "Matrix 1: " << m1 << std::endl;
+	std::cout << "Matrix 2: " << m2 << std::endl;
+	std::cout << "Matrix 3: " << m3 << std::endl;
+	std::cout << "Matrix 4: " << m4 << std::endl;
+	std::cout << "Matrix 4 * " << v << " = " << m4 * v << std::endl;
+	std::cout << "Matrix 3 * " << n << " : " << m3 * n << std::endl;
+	std::cout << "Matrix 3 / " << n << " : " << m3 * n << std::endl;
+	std::cout << "Matrix 3 row 1: " << m3.get_row(1) << std::endl;
+	std::cout << "Matrix 3 column 2: " << m3.get_column(-1) << std::endl;
+
 }
