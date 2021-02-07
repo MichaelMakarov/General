@@ -64,5 +64,45 @@ namespace general
             const double sint{ std::sin(angle * 0.5) };
             return rotate_vector(v, Quaternion(cost, sint * axis.X, sint * axis.Y, sint * axis.Z));
         }
+        Matrix3x3 matrix_from_quaternion(const Quaternion& q)
+        {
+            return Matrix3x3(
+                q.S * q.S + q.X * q.X - q.Y * q.Y - q.Z * q.Z,
+                2 * (q.X * q.Y - q.S * q.Z),
+                2 * (q.S * q.Y + q.X * q.Z),
+                2 * (q.S * q.Z + q.X * q.Y),
+                q.S * q.S - q.X * q.X + q.Y * q.Y - q.Z * q.Z,
+                2 * (q.Y * q.Z - q.S * q.X),
+                2 * (q.X * q.Z - q.S * q.Y),
+                2 * (q.S * q.X + q.Y * q.Z),
+                q.S * q.S - q.X * q.X - q.Y * q.Y + q.Z * q.Z
+            );
+        }
+        Quaternion quaternion_from_matrix(const Matrix3x3& m)
+        {
+            auto q{ Quaternion(0.25, 0.25, 0.25, 0.25) };
+            if ((q.S = 0.5 * std::sqrt(1 + m(0, 0) + m(1, 1) + m(2, 2))) > 1e-6) {
+                q.X *= (m(2, 1) - m(1, 2)) / q.S;
+                q.Y *= (m(0, 2) - m(2, 0)) / q.S;
+                q.Z *= (m(1, 0) - m(0, 1)) / q.S;
+            }
+            else if ((q.X = 0.5 * std::sqrt(1 + m(0, 0) - m(1, 1) - m(2, 2))) > 1e-6) {
+                q.S *= (m(2, 1) - m(1, 2)) / q.X;
+                q.Y *= (m(1, 0) + m(0, 1)) / q.X;
+                q.Z *= (m(2, 0) + m(0, 2)) / q.X;
+            }
+            else if ((q.Y = 0.5 * std::sqrt(1 - m(0, 0) + m(1, 1) - m(2, 2))) > 1e-6) {
+                q.S *= (m(0, 2) - m(2, 0)) / q.Y;
+                q.X *= (m(0, 1) + m(1, 0)) / q.Y;
+                q.Z *= (m(2, 1) + m(1, 2)) / q.Y;
+            }
+            else {
+                q.Z = 0.5 * std::sqrt(1 - m(0, 0) - m(1, 1) + m(2, 2));
+                q.S *= (m(1, 0) - m(0, 1)) / q.Z;
+                q.X *= (m(2, 0) + m(0, 2)) / q.Z;
+                q.Y *= (m(2, 1) + m(1, 2)) / q.Z;
+            }
+            return q;
+        }
 	}
 }

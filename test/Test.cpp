@@ -210,4 +210,11 @@ void test_quaternion()
 	std::cout << "v: " << v << std::endl;
 	std::cout << "a: " << a << std::endl;
 	std::cout << v << " rotation around " << a << " by angle " << t << ": " << rotate_vector(v, a, deg_to_rad(t)) << std::endl;
+
+	double sint{ std::sin(deg_to_rad(t)) }, cost{ std::cos(deg_to_rad(t)) };
+	auto m{ Matrix3x3(cost, sint, 0, -sint, cost, 0, 0, 0, 1) };
+	auto q = quaternion_from_matrix(m);
+	std::cout << "initial matrix: " << m << std::endl;
+	std::cout << "quaternion from matrix: " << q << std::endl;
+	std::cout << "matrix from quaternion: " << matrix_from_quaternion(q) << std::endl;
 }

@@ -2,6 +2,7 @@
 #include <istream>
 #include "Geometry.h"
 #include "Quaternion.h"
+#include "Matrix3x3.h"
 
 namespace general
 {
@@ -28,5 +29,9 @@ namespace general
         // axis - the direction of the axis of rotation,
         // angle - the angle of rotation in radians.
         geometry::XYZ rotate_vector(const geometry::XYZ& v, const geometry::XYZ& axis, const double angle);
+        // Matrix of the cosines calculation using a quaternion
+        Matrix3x3 matrix_from_quaternion(const Quaternion& q);
+        // Quaternion calculation using the matrix of the cosines
+        Quaternion quaternion_from_matrix(const Matrix3x3& m);
 	}
 }
