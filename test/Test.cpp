@@ -5,6 +5,8 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "Geometry.h"
+#include "Quaternion.h"
+#include "Mathematics.h"
 #include <iostream>
 
 using namespace general::geometry;
@@ -16,6 +18,7 @@ void test_legendre();
 void test_matrix3();
 void test_vector();
 void test_matrix();
+void test_quaternion();
 
 int main()
 {
@@ -24,6 +27,7 @@ int main()
 	test_matrix3();
 	test_vector();
 	test_matrix();
+	test_quaternion();
 	return 0;
 }
 
@@ -183,4 +187,27 @@ void test_matrix()
 	std::cout << "Matrix 3 row 1: " << m3.get_row(1) << std::endl;
 	std::cout << "Matrix 3 column 2: " << m3.get_column(-1) << std::endl;
 
+}
+
+void test_quaternion()
+{
+	std::cout << "\n...Quaternion tests...\n";
+
+	auto q1{ Quaternion(2.0, 3, -1, 0.7) };
+	auto q2{ Quaternion(0.9, -3, 0.12, -0.01) };
+
+	std::cout << "q1: " << q1 << std::endl;
+	std::cout << "q2: " << q2 << std::endl;
+	std::cout << "q1*: " << Quaternion::conj(q1) << std::endl;
+	std::cout << "|q1| = " << q1.module() << std::endl;
+	std::cout << "q1 * q2: " << q1 * q2 << std::endl;
+	std::cout << "q1^-1: " << Quaternion::inv(q1) << std::endl;
+	std::cout << "q2 * 0.5: " << q2 * 0.5 << std::endl;
+
+	auto v{ XYZ(1, 1, 1) };
+	auto a{ XYZ(0, 1, 0) };
+	auto t{ 45 };
+	std::cout << "v: " << v << std::endl;
+	std::cout << "a: " << a << std::endl;
+	std::cout << v << " rotation around " << a << " by angle " << t << ": " << rotate_vector(v, a, deg_to_rad(t)) << std::endl;
 }

@@ -18,7 +18,8 @@ add_library(
 	src/Matrix3x3.cpp 
 	src/Vector.cpp 
 	src/Matrix.cpp 
-)
+	src/Quaternion.cpp
+ )
 
 add_executable(
 	TestGeneral

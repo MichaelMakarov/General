@@ -53,5 +53,16 @@ namespace general
             if (x < 40) return values[x];
             throw std::invalid_argument("x value is unsupported!");
         }
+        geometry::XYZ rotate_vector(const geometry::XYZ& v, const Quaternion& q)
+        {
+            auto r = q * Quaternion(0, v.X, v.Y, v.Z) * Quaternion::inv(q);
+            return geometry::XYZ(r.X, r.Y, r.Z);
+        }
+        geometry::XYZ rotate_vector(const geometry::XYZ& v, const geometry::XYZ& axis, const double angle)
+        {
+            const double cost{ std::cos(angle * 0.5) };
+            const double sint{ std::sin(angle * 0.5) };
+            return rotate_vector(v, Quaternion(cost, sint * axis.X, sint * axis.Y, sint * axis.Z));
+        }
 	}
 }
