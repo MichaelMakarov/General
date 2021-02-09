@@ -1,5 +1,7 @@
 #include "Times.h"
 #include "GeneralConstants.h"
+#include <sstream>
+#include <iomanip>
 #include <cmath>
 
 namespace general
@@ -140,7 +142,7 @@ namespace general
 
 		std::ostream& operator << (std::ostream& o, const Time& t)
 		{
-			o << t._hour << ':' << t._minute << ':' << t._second << '.' << t._millisec;
+			o << t._hour << ':' << t._minute << ':' << t._second + t._millisec * 1e-3;
 			return o;
 		}
 
@@ -210,6 +212,7 @@ namespace general
 
 		JD::JD(const double jd)
 		{
+			if (jd < 0) throw std::invalid_argument("Invalid julian date < 0!");
 			double jdn;
 			_time = std::modf(jd, &jdn);
 			_day = static_cast<size_t>(jdn);
@@ -223,6 +226,15 @@ namespace general
 				m = d.get_month() + 12 * a - 3;
 			_day = d.get_day() + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
 			_time = (t.get_hour() + (t.get_minute() + (t.get_second() + t.get_millisecond() * 1e-3) / 60) / 60) / 24;
+		}
+
+		JD::JD(const size_t day, const double time)
+		{
+			if (time > 0 && time < 1.0) {
+				_day = day;
+				_time = time;
+			}
+			else throw std::invalid_argument("Time is invalid (should be 0 < t < 1)!");
 		}
 
 		DateTime JD::to_datetime() const
@@ -259,6 +271,18 @@ namespace general
 			double jdn;
 			_time = std::modf(jd, &jdn);
 			_day = static_cast<size_t>(jdn);
+			return *this;
+		}
+		JD::JD(JD&& jd) noexcept : _day{ jd._day }, _time{ jd._time }
+		{
+			jd._time = jd._day = 0;
+		}
+
+		JD& JD::operator = (JD&& jd) noexcept
+		{
+			_day = jd._day;
+			_time = jd._time;
+			jd._time = jd._day = 0;
 			return *this;
 		}
 
@@ -330,7 +354,15 @@ namespace general
 
 		std::ostream& operator << (std::ostream& o, const JD& jd)
 		{
-			o << jd._day << std::ends << jd._time;
+			o << jd._day;
+			if (jd._time > 1e-10) {
+				std::ostringstream str;
+				str << std::setprecision(10) << jd._time;
+				auto val{ str.str() };
+				o << ".";
+				for (size_t i = 2; i < val.size(); ++i)
+					o << val[i];
+			}
 			return o;
 		}
 		DateTime::DateTime(DateTime&& dt) noexcept

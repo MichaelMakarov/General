@@ -76,7 +76,7 @@ namespace general
 			friend std::ostream& operator << (std::ostream& o, const Time& d);
 		};
 
-		// Class implements both date and time od the day.
+		// Class implements both date and time of the day.
 		class DateTime
 		{
 		private:
@@ -114,6 +114,7 @@ namespace general
 			friend std::ostream& operator << (std::ostream& o, const DateTime& d);
 		};
 
+		// Represents the julian date refered to midnight count down.
 		class JD
 		{
 		private:
@@ -123,15 +124,23 @@ namespace general
 		public:
 			JD() : _day{ 0 }, _time{ 0 } {}
 			explicit JD(const DateTime& datetime);
-			JD(const size_t day, const double time) : _day{ day }, _time{ time } {}
+			JD(const size_t day, const double time);
 			JD(const double jd);
-			~JD() {}
+			JD(const JD& jd) noexcept = default;
+			JD(JD && jd) noexcept;
+			~JD() = default;
 
 			JD& operator = (const double jd);
+			JD& operator = (const JD& jd) noexcept = default;
+			JD& operator = (JD && jd) noexcept;
 			
+			// A day number
 			size_t JDN() const { return _day; }
+			// Time of the day as part of the day
 			double T() const { return _time; }
+			// Conversion to corresponding datetime
 			DateTime to_datetime() const;
+			// Representing as single number
 			double to_double() const;
 
 			void add_days(const int n);
