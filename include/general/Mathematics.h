@@ -18,6 +18,16 @@ namespace general
         {
             return radians * 180.0 / PI;
         }
+        // Radians to angle seconds conversion
+        inline double rad_to_sec(const double radians)
+        {
+            return rad_to_deg(radians) * SEC_PER_ROUND;
+        }
+        // Angle seconds to radians conversion
+        inline double sec_to_rad(const double seconds)
+        {
+            return seconds * RAD_PER_SEC;
+        }
         // Factorial
         long double factorial(const size_t x);
         // A vector transforming by rotation using quaternion.
