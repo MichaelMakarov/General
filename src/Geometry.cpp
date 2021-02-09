@@ -41,16 +41,20 @@ namespace general
             Z -= v.Z;
             return *this;
         }
-        double XYZ::operator *= (const XYZ& v)
-        {
-            return X * v.X + Y * v.Y + Z * v.Z;
-        }
         XYZ& XYZ::operator *= (const double n)
         {
             X *= n;
             Y *= n;
             Z *= n;
             return *this;
+        }
+        XYZ XYZ::cross(const XYZ& f, const XYZ& s)
+        {
+            return XYZ(
+                f.Y * s.Z - f.Z * s.Y,
+                f.Z * s.X - f.X * s.Z,
+                f.X * s.Y - f.Y * s.X
+            );
         }
         XYZ& XYZ::operator /= (const double n)
         {
@@ -79,6 +83,11 @@ namespace general
         XYZ operator * (const double n, const XYZ& v)
         {
             return XYZ(v.X * n, v.Y * n, v.Z * n);
+        }
+
+        double operator*(const XYZ& f, const XYZ& s)
+        {
+            return f.X * s.X + f.Y * s.Y + f.Z * s.Z;
         }
 
         std::ostream& operator << (std::ostream& o, const XYZ& v)

@@ -18,7 +18,7 @@ namespace general
 			{}
 			XYZ(const XYZ& xyz) noexcept = default;
 			XYZ(XYZ&& xyz) noexcept;
-			~XYZ() {}
+			~XYZ() noexcept = default;
 
 			XYZ& operator = (const XYZ& xyz) noexcept = default;
 			XYZ& operator = (XYZ&& xyz) noexcept;
@@ -27,7 +27,6 @@ namespace general
 
 			XYZ& operator += (const XYZ& v);
 			XYZ& operator -= (const XYZ& v);
-			double operator *= (const XYZ& v);
 			XYZ& operator /= (const double n);
 			XYZ& operator *= (const double n);
 
@@ -38,6 +37,9 @@ namespace general
 			friend XYZ operator * (const XYZ& v, const double n);
 			friend XYZ operator / (const XYZ& v, const double n);
 			friend XYZ operator * (const double n, const XYZ& v);
+			friend double operator * (const XYZ& f, const XYZ& s);
+
+			static XYZ cross(const XYZ& f, const XYZ& s);
 		};
 
 		struct RBL
@@ -52,7 +54,7 @@ namespace general
 			{}
 			RBL(const RBL& rbl) noexcept = default;
 			RBL(RBL&& rbl) noexcept;
-			~RBL() {}
+			~RBL() noexcept = default;
 
 			RBL& operator = (const RBL& rbl) noexcept = default;
 			RBL& operator = (RBL&& rbl) noexcept;
@@ -112,6 +114,7 @@ namespace general
 			{}
 			PV(const PV& pv) noexcept = default;
 			PV(PV&& pv) noexcept;
+			~PV() = default;
 
 			PV& operator = (const PV& pv) noexcept = default;
 			PV& operator = (PV&& pv) noexcept;
