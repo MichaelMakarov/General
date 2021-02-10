@@ -3,7 +3,6 @@
 #include <vector>
 #include <ostream>
 #include <istream>
-#include "IEnumerable.h"
 
 namespace general
 {
@@ -12,38 +11,35 @@ namespace general
 		using namespace general;
 		using long_t = long long;
 
-		class Vector : public IEnumerable<double>
+		class Vector : public std::vector<double>
 		{
-		private:
-			std::unique_ptr<double[]> _pValues;
-			size_t _size;
-
-			void update();
-
 		public:
-			Vector() : _size{ 0 } { update(); }
-			explicit Vector(const size_t size) : _size{ size }, _pValues{ std::make_unique<double[]>(size) } { update(); }
-			Vector(const std::initializer_list<double>& values);
-			template<size_t size> Vector(const double(&values)[size])
+			Vector() : std::vector<double>() {}
+			explicit Vector(const size_t size) : std::vector<double>(size) {}
+			Vector(const std::initializer_list<double>& values) : std::vector<double>(values) {}
+			template<size_t size> Vector(const double(&values)[size]) : std::vector<double>(size)
 			{
-				_size = size;
-				_pValues = std::make_unique<double[]>(_size);
-				std::memcpy(_pValues.get(), values, _size * sizeof(double));
+				std::memcpy(data(), values, size * sizeof(double));
 			}
-			Vector(const Vector& vector) noexcept;
-			Vector(Vector&& vector) noexcept;
-			Vector(const std::vector<double>& vector);
-			template<class IterType> Vector(IterType& begin, IterType& end);
-			~Vector() noexcept { _size = 0; _begin = _end = nullptr;  }
+			Vector(const Vector& vector) = default;
+			Vector(Vector&& vector) noexcept : std::vector<double>(vector) {}
+			Vector(const std::vector<double>& vector) : std::vector<double>(vector) {}
+			template<class IterType> Vector(IterType& begin, IterType& end) : std::vector<double>(begin, end) {}
+			~Vector() noexcept = default;
 
-			Vector& operator = (const Vector& vector) noexcept;
+			Vector& operator = (const Vector& vector) noexcept = default;
 			Vector& operator = (Vector&& vector) noexcept;
 
-			size_t size() const { return _size; }
 			double length() const;
 
-			double& operator [] (const size_t index) const { return _pValues[index]; }
-			double& operator [] (const long_t index) const { return _pValues[index < 0 ? index + _size : index]; }
+			const double& operator [] (const long_t index) const
+			{ 
+				return static_cast<const std::vector<double>*>(this)->operator[](index < 0 ? index + size() : index); 
+			}
+			double& operator [] (const long_t index)
+			{
+				return static_cast<std::vector<double>*>(this)->operator[](index < 0 ? index + size() : index);
+			}
 
 			Vector& operator += (const Vector& vector);
 			Vector& operator -= (const Vector& vector);
@@ -62,17 +58,5 @@ namespace general
 			static Vector ones(const size_t size);
 
 		};
-		template<class IterType>
-		inline Vector::Vector(IterType& begin, IterType& end)
-		{
-			_size = end - begin;
-			_pValues = std::make_unique<double[]>(_size);
-			size_t index{ 0 };
-			for (auto& iter = begin; iter != end; iter++)
-			{
-				_pValues[index++] = *iter;
-			}
-			update();
-		}
 	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Vector.h"
+#include "IEnumerable.h"
 
 namespace general
 {
@@ -8,6 +9,7 @@ namespace general
 		class Matrix : public IEnumerable<double>
 		{
 		private:
+
 			std::unique_ptr<double[]> _pValues;
 			size_t _nrows, _ncols;
 
