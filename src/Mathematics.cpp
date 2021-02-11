@@ -53,12 +53,12 @@ namespace general
             if (x < 40) return values[x];
             throw std::invalid_argument("x value is unsupported!");
         }
-        geometry::XYZ rotate_vector(const geometry::XYZ& v, const Quaternion& q)
+        Vec3 rotate_vector(const Vec3& v, const Quaternion& q)
         {
             auto r = q * Quaternion(0, v.X, v.Y, v.Z) * Quaternion::inv(q);
-            return geometry::XYZ(r.X, r.Y, r.Z);
+            return Vec3(r.X, r.Y, r.Z);
         }
-        geometry::XYZ rotate_vector(const geometry::XYZ& v, const geometry::XYZ& axis, const double angle)
+        Vec3 rotate_vector(const Vec3& v, const Vec3& axis, const double angle)
         {
             const double cost{ std::cos(angle * 0.5) };
             const double sint{ std::sin(angle * 0.5) };
@@ -103,6 +103,29 @@ namespace general
                 q.Y *= (m(2, 1) + m(1, 2)) / q.Z;
             }
             return q;
+        }
+        Quaternion quaternion_from_eulerangles(const Vec3& angles)
+        {
+            const double cost_2{ std::cos(angles.Y * 0.5) };
+            const double sint_2{ std::sin(angles.Y * 0.5) };
+            const double ppp_2{ (angles.X + angles.Z) * 0.5 };
+            const double pmp_2{ (angles.X - angles.Z) * 0.5 };
+            return Quaternion(
+                cost_2 * std::cos(ppp_2),
+                sint_2 * std::cos(pmp_2),
+                sint_2 * std::sin(pmp_2),
+                cost_2 * std::sin(ppp_2)
+            );
+        }
+        Vec3 eulerangles_from_quaternion(const Quaternion& q)
+        {
+            const double u{ std::atan2(q.Z, q.S) }; // (psi + phi) / 2
+            const double v{ std::atan2(q.Y, q.X) }; // (psi - phi) / 2
+            return Vec3(
+                u + v,
+                2 * std::atan(std::sqrt((q.X * q.X + q.Y * q.Y) / (q.S * q.S + q.Z * q.Z))),
+                u - v
+            );
         }
 	}
 }

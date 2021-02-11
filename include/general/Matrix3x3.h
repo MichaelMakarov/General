@@ -1,6 +1,7 @@
 #pragma once
 #include <ostream>
 #include <istream>
+#include <Geometry.h>
 
 namespace general
 {
@@ -29,8 +30,10 @@ namespace general
 
 			double det() const;
 
-			double operator () (const size_t m, const size_t n) const;
-			double operator [] (const size_t i) const;
+			const double& operator () (const size_t m, const size_t n) const;
+			const double& operator [] (const size_t i) const;
+			double& operator () (const size_t m, const size_t n);
+			double& operator [] (const size_t i);
 
 			static Matrix3x3 inv(const Matrix3x3& m);
 			static Matrix3x3 eye();
@@ -47,6 +50,7 @@ namespace general
 			friend Matrix3x3 operator * (const Matrix3x3& m, const double v);
 			friend Matrix3x3 operator / (const Matrix3x3& m, const double v);
 			friend Matrix3x3 operator * (const double v, const Matrix3x3& m);
+			friend Vec3 operator * (const Matrix3x3& m, const Vec3& v);
 
 			friend std::ostream& operator << (std::ostream& o, const Matrix3x3& m);
 			friend std::istream& operator >> (std::istream& i, Matrix3x3& m);

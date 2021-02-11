@@ -3,9 +3,9 @@
 
 namespace general
 {
-    namespace geometry
+    namespace math
     {
-        XYZ::XYZ(XYZ&& xyz) noexcept
+        Vec3::Vec3(Vec3&& xyz) noexcept
         {
             X = xyz.X;
             Y = xyz.Y;
@@ -13,7 +13,7 @@ namespace general
             xyz.X = xyz.Y = xyz.Z = 0;
         }
 
-        XYZ& XYZ::operator=(XYZ&& xyz) noexcept
+        Vec3& Vec3::operator=(Vec3&& xyz) noexcept
         {
             X = xyz.X;
             Y = xyz.Y;
@@ -22,41 +22,41 @@ namespace general
             return *this;
 
         }
-        double XYZ::length() const
+        double Vec3::length() const
         {
             return std::sqrt(X * X + Y * Y + Z * Z);
         }
 
-        XYZ& XYZ::operator += (const XYZ& v)
+        Vec3& Vec3::operator += (const Vec3& v)
         {
             X += v.X;
             Y += v.Y;
             Z += v.Z;
             return *this;
         }
-        XYZ& XYZ::operator -= (const XYZ& v)
+        Vec3& Vec3::operator -= (const Vec3& v)
         {
             X -= v.X;
             Y -= v.Y;
             Z -= v.Z;
             return *this;
         }
-        XYZ& XYZ::operator *= (const double n)
+        Vec3& Vec3::operator *= (const double n)
         {
             X *= n;
             Y *= n;
             Z *= n;
             return *this;
         }
-        XYZ XYZ::cross(const XYZ& f, const XYZ& s)
+        Vec3 Vec3::cross(const Vec3& f, const Vec3& s)
         {
-            return XYZ(
+            return Vec3(
                 f.Y * s.Z - f.Z * s.Y,
                 f.Z * s.X - f.X * s.Z,
                 f.X * s.Y - f.Y * s.X
             );
         }
-        XYZ& XYZ::operator /= (const double n)
+        Vec3& Vec3::operator /= (const double n)
         {
             X /= n;
             Y /= n;
@@ -64,109 +64,35 @@ namespace general
             return *this;
         }
 
-        XYZ operator + (const XYZ& f, const XYZ& s)
+        Vec3 operator + (const Vec3& f, const Vec3& s)
         {
-            return XYZ(f.X + s.X, f.Y + s.Y, f.Z + s.Z);
+            return Vec3(f.X + s.X, f.Y + s.Y, f.Z + s.Z);
         }
-        XYZ operator - (const XYZ& f, const XYZ& s)
+        Vec3 operator - (const Vec3& f, const Vec3& s)
         {
-            return XYZ(f.X - s.X, f.Y - s.Y, f.Z - s.Z);
+            return Vec3(f.X - s.X, f.Y - s.Y, f.Z - s.Z);
         }
-        XYZ operator * (const XYZ& v, const double n)
+        Vec3 operator * (const Vec3& v, const double n)
         {
-            return XYZ(v.X * n, v.Y * n, v.Z * n);
+            return Vec3(v.X * n, v.Y * n, v.Z * n);
         }
-        XYZ operator / (const XYZ& v, const double n)
+        Vec3 operator / (const Vec3& v, const double n)
         {
-            return XYZ(v.X / n, v.Y / n, v.Z / n);
+            return Vec3(v.X / n, v.Y / n, v.Z / n);
         }
-        XYZ operator * (const double n, const XYZ& v)
+        Vec3 operator * (const double n, const Vec3& v)
         {
-            return XYZ(v.X * n, v.Y * n, v.Z * n);
+            return Vec3(v.X * n, v.Y * n, v.Z * n);
         }
 
-        double operator*(const XYZ& f, const XYZ& s)
+        double operator*(const Vec3& f, const Vec3& s)
         {
             return f.X * s.X + f.Y * s.Y + f.Z * s.Z;
         }
 
-        std::ostream& operator << (std::ostream& o, const XYZ& v)
+        std::ostream& operator << (std::ostream& o, const Vec3& v)
         {
             o << "{ " << v.X << "; " << v.Y << "; " << v.Z << " }";
-            return o;
-        }
-
-
-        RBL::RBL(RBL&& rbl) noexcept
-        {
-            R = rbl.R;
-            B = rbl.B;
-            L = rbl.L;
-            rbl.R = rbl.B = rbl.L = 0;
-        }
-
-        RBL& RBL::operator=(RBL&& rbl) noexcept
-        {
-            R = rbl.R;
-            B = rbl.B;
-            L = rbl.L;
-            rbl.R = rbl.B = rbl.L = 0;
-            return *this;
-        }
-
-        RBL& RBL::operator += (const RBL& v)
-        {
-            R += v.R;
-            B += v.B;
-            L += v.L;
-            return *this;
-        }
-        RBL& RBL::operator -= (const RBL& v)
-        {
-            R -= v.R;
-            B -= v.B;
-            L -= v.L;
-            return *this;
-        }
-        RBL& RBL::operator /= (const double n)
-        {
-            R /= n;
-            B /= n;
-            L /= n;
-            return *this;
-        }
-        RBL& RBL::operator *= (const double n)
-        {
-            R *= n;
-            B *= n;
-            L *= n;
-            return *this;
-        }
-
-        RBL operator + (const RBL& f, const RBL& s)
-        {
-            return RBL(f.R + s.R, f.B + s.B, f.L + s.L);
-        }
-        RBL operator - (const RBL& f, const RBL& s)
-        {
-            return RBL(f.R - s.R, f.B - s.B, f.L - s.L);
-        }
-        RBL operator * (const RBL& v, const double n)
-        {
-            return RBL(v.R * n, v.B * n, v.L * n);
-        }
-        RBL operator / (const RBL& v, const double n)
-        {
-            return RBL(v.R / n, v.B / n, v.L / n);
-        }
-        RBL operator * (const double n, const RBL& v)
-        {
-            return RBL(v.R * n, v.B * n, v.L * n);
-        }
-
-        std::ostream& operator << (std::ostream& o, const RBL& v)
-        {
-            o << "{ " << v.R << "; " << v.B << "; " << v.L << " }";
             return o;
         }
 

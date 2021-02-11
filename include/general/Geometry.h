@@ -3,75 +3,43 @@
 
 namespace general
 {
-	namespace geometry
+	namespace math
 	{
 		// Struct represents point in the orthogonal coordinate system.
 		// Implements adding, substraction, multiplying, can be used for vector implementing.
-		struct XYZ
+		struct Vec3
 		{
 			double X, Y, Z;
-			XYZ() : X(0), Y(0), Z(0) {}
-			XYZ(
+			Vec3() : X(0), Y(0), Z(0) {}
+			Vec3(
 				const double x,
 				const double y,
 				const double z) : X(x), Y(y), Z(z)
 			{}
-			XYZ(const XYZ& xyz) noexcept = default;
-			XYZ(XYZ&& xyz) noexcept;
-			~XYZ() noexcept = default;
+			Vec3(const Vec3& xyz) noexcept = default;
+			Vec3(Vec3&& xyz) noexcept;
+			~Vec3() noexcept = default;
 
-			XYZ& operator = (const XYZ& xyz) noexcept = default;
-			XYZ& operator = (XYZ&& xyz) noexcept;
+			Vec3& operator = (const Vec3& xyz) noexcept = default;
+			Vec3& operator = (Vec3&& xyz) noexcept;
 
 			double length() const;
 
-			XYZ& operator += (const XYZ& v);
-			XYZ& operator -= (const XYZ& v);
-			XYZ& operator /= (const double n);
-			XYZ& operator *= (const double n);
+			Vec3& operator += (const Vec3& v);
+			Vec3& operator -= (const Vec3& v);
+			Vec3& operator /= (const double n);
+			Vec3& operator *= (const double n);
 
-			friend std::ostream& operator << (std::ostream& o, const XYZ& v);
+			friend std::ostream& operator << (std::ostream& o, const Vec3& v);
 
-			friend XYZ operator + (const XYZ& f, const XYZ& s);
-			friend XYZ operator - (const XYZ& f, const XYZ& s);
-			friend XYZ operator * (const XYZ& v, const double n);
-			friend XYZ operator / (const XYZ& v, const double n);
-			friend XYZ operator * (const double n, const XYZ& v);
-			friend double operator * (const XYZ& f, const XYZ& s);
+			friend Vec3 operator + (const Vec3& f, const Vec3& s);
+			friend Vec3 operator - (const Vec3& f, const Vec3& s);
+			friend Vec3 operator * (const Vec3& v, const double n);
+			friend Vec3 operator / (const Vec3& v, const double n);
+			friend Vec3 operator * (const double n, const Vec3& v);
+			friend double operator * (const Vec3& f, const Vec3& s);
 
-			static XYZ cross(const XYZ& f, const XYZ& s);
-		};
-
-		struct RBL
-		{
-			double R, B, L;
-
-			RBL() : R(0), B(0), L(0) {}
-			RBL(
-				const double r,
-				const double b,
-				const double l) : R(r), B(b), L(l)
-			{}
-			RBL(const RBL& rbl) noexcept = default;
-			RBL(RBL&& rbl) noexcept;
-			~RBL() noexcept = default;
-
-			RBL& operator = (const RBL& rbl) noexcept = default;
-			RBL& operator = (RBL&& rbl) noexcept;
-
-			RBL& operator += (const RBL& v);
-			RBL& operator -= (const RBL& v);
-			RBL& operator /= (const double n);
-			RBL& operator *= (const double n);
-
-			friend std::ostream& operator << (std::ostream& o, const RBL& v);
-
-			friend RBL operator + (const RBL& f, const RBL& s);
-			friend RBL operator - (const RBL& f, const RBL& s);
-			friend RBL operator * (const RBL& v, const double n);
-			friend RBL operator / (const RBL& v, const double n);
-			friend RBL operator * (const double n, const RBL& v);
-
+			static Vec3 cross(const Vec3& f, const Vec3& s);
 		};
 
 		// Struct implements the vector of 6th dimension.
@@ -93,24 +61,14 @@ namespace general
 				V1{ vx }, V2{ vy }, V3{ vz }
 			{}
 			PV(
-				const XYZ& position,
-				const XYZ& velocity) :
+				const Vec3& position,
+				const Vec3& velocity) :
 				P1{ position.X },
 				P2{ position.Y },
 				P3{ position.Z },
 				V1{ velocity.X },
 				V2{ velocity.Y },
 				V3{ velocity.Z }
-			{}
-			PV(
-				const RBL& position,
-				const RBL& velocity) :
-				P1{ position.R },
-				P2{ position.B },
-				P3{ position.L },
-				V1{ velocity.R },
-				V2{ velocity.B },
-				V3{ velocity.L }
 			{}
 			PV(const PV& pv) noexcept = default;
 			PV(PV&& pv) noexcept;

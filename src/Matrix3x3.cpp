@@ -35,12 +35,22 @@ namespace general
 				_values[2] * (_values[3] * _values[7] - _values[4] * _values[6]);
 		}
 
-		double Matrix3x3::operator () (const size_t m, const size_t n) const
+		const double& Matrix3x3::operator () (const size_t m, const size_t n) const
 		{
 			return _values[m * 3 + n];
 		}
 
-		double Matrix3x3::operator [] (const size_t i) const
+		const double& Matrix3x3::operator [] (const size_t i) const
+		{
+			return _values[i];
+		}
+
+		double& Matrix3x3::operator()(const size_t m, const size_t n)
+		{
+			return _values[m * 3 + n];
+		}
+
+		double& Matrix3x3::operator[](const size_t i)
 		{
 			return _values[i];
 		}
@@ -133,7 +143,7 @@ namespace general
 		}
 		Matrix3x3 operator * (const Matrix3x3& m1, const Matrix3x3& m2)
 		{
-			double buf[9]{ 0 };
+			double buf[9]{ };
 			for (size_t i = 0; i < 3; ++i)
 				for (size_t j = 0; j < 3; ++j)
 					for (size_t k = 0; k < 3; ++k)
@@ -141,7 +151,8 @@ namespace general
 			return Matrix3x3(
 				buf[0], buf[1], buf[2],
 				buf[3], buf[4], buf[5],
-				buf[6], buf[7], buf[8]);
+				buf[6], buf[7], buf[8]
+			);
 		}
 		Matrix3x3 operator * (const Matrix3x3& m, const double v)
 		{
@@ -171,6 +182,14 @@ namespace general
 				m._values[8] * v
 			);
 		}
+		Vec3 operator*(const Matrix3x3& m, const Vec3& v)
+		{
+			return Vec3(
+				m._values[0] * v.X + m._values[1] * v.Y + m._values[3] * v.Z,
+				m._values[3] * v.X + m._values[4] * v.Y + m._values[5] * v.Z,
+				m._values[6] * v.X + m._values[7] * v.Y + m._values[8] * v.Z
+			);
+		}
 		Matrix3x3 operator / (const Matrix3x3& m, const double v)
 		{
 			return Matrix3x3(
@@ -196,8 +215,7 @@ namespace general
 		}
 		std::istream& operator >> (std::istream& is, Matrix3x3& m)
 		{
-			for (size_t i = 0; i < 9; ++i)
-				is >> m._values[i];
+			for (size_t i = 0; i < 9; ++i) is >> m._values[i];
 			return is;
 		}
 	}

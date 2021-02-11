@@ -1,6 +1,7 @@
 #pragma once
 #include <istream>
 #include <ostream>
+#include <Geometry.h>
 
 namespace general
 {

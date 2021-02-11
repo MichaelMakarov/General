@@ -9,7 +9,6 @@
 #include "Mathematics.h"
 #include <iostream>
 
-using namespace general::geometry;
 using namespace general::time;
 using namespace general::math;
 
@@ -204,8 +203,8 @@ void test_quaternion()
 	std::cout << "q1^-1: " << Quaternion::inv(q1) << std::endl;
 	std::cout << "q2 * 0.5: " << q2 * 0.5 << std::endl;
 
-	auto v{ XYZ(1, 1, 1) };
-	auto a{ XYZ(0, 1, 0) };
+	auto v{ Vec3(1, 1, 1) };
+	auto a{ Vec3(0, 1, 0) };
 	auto t{ 45 };
 	std::cout << "v: " << v << std::endl;
 	std::cout << "a: " << a << std::endl;
