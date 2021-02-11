@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <vector>
 #include <ostream>
 #include <istream>
@@ -8,7 +7,6 @@ namespace general
 {
 	namespace math
 	{
-		using namespace general;
 		using long_t = long long;
 
 		class Vector : public std::vector<double>

@@ -1,6 +1,4 @@
 #include "GeneralConstants.h"
-#include <istream>
-#include "Geometry.h"
 #include "Quaternion.h"
 #include "Matrix3x3.h"
 
