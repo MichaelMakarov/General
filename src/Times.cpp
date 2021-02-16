@@ -275,14 +275,14 @@ namespace general
 		}
 		JD::JD(JD&& jd) noexcept : _day{ jd._day }, _time{ jd._time }
 		{
-			jd._time = jd._day = 0;
+			jd._time = 0; jd._day = 0;
 		}
 
 		JD& JD::operator = (JD&& jd) noexcept
 		{
 			_day = jd._day;
 			_time = jd._time;
-			jd._time = jd._day = 0;
+			jd._time = 0; jd._day = 0;
 			return *this;
 		}
 
