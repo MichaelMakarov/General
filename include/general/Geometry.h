@@ -1,10 +1,45 @@
 #pragma once
 #include <ostream>
+#include <istream>
 
 namespace general
 {
 	namespace math
 	{
+		struct Vec2
+		{
+			double X, Y;
+			Vec2() : X{ 0 }, Y{ 0 } {}
+			Vec2(
+				const double x, 
+				const double y) : X{ x }, Y{ y }
+			{}
+			Vec2(const Vec2& v) : X{ v.X }, Y{ v.Y } 
+			{}
+			Vec2(Vec2&& v) noexcept;
+			~Vec2() noexcept = default;
+
+			Vec2& operator = (const Vec2& v) noexcept = default;
+			Vec2& operator = (Vec2&& v) noexcept;
+
+			double length() const;
+
+			Vec2& operator += (const Vec2& v);
+			Vec2& operator -= (const Vec2& v);
+			Vec2& operator /= (const double n);
+			Vec2& operator *= (const double n);
+
+			friend std::ostream& operator << (std::ostream& os, const Vec2& v);
+			friend std::istream& operator >> (std::istream& is, Vec2& v);
+
+			friend Vec2 operator + (const Vec2& f, const Vec2& s);
+			friend Vec2 operator - (const Vec2& f, const Vec2& s);
+			friend Vec2 operator * (const Vec2& v, const double n);
+			friend Vec2 operator / (const Vec2& v, const double n);
+			friend Vec2 operator * (const double n, const Vec2& v);
+			friend double operator * (const Vec2& f, const Vec2& s);
+		};
+
 		// Struct represents point in the orthogonal coordinate system.
 		// Implements adding, substraction, multiplying, can be used for vector implementing.
 		struct Vec3
@@ -30,7 +65,8 @@ namespace general
 			Vec3& operator /= (const double n);
 			Vec3& operator *= (const double n);
 
-			friend std::ostream& operator << (std::ostream& o, const Vec3& v);
+			friend std::ostream& operator << (std::ostream& os, const Vec3& v);
+			friend std::istream& operator >> (std::istream& is, Vec3& v);
 
 			friend Vec3 operator + (const Vec3& f, const Vec3& s);
 			friend Vec3 operator - (const Vec3& f, const Vec3& s);

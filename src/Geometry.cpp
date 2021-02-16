@@ -96,6 +96,12 @@ namespace general
             return o;
         }
 
+        std::istream& operator>>(std::istream& is, Vec3& v)
+        {
+            is >> v.X >> v.Y;
+            return is;
+        }
+
         std::ostream& operator << (std::ostream& o, const PV& pv)
         {
             o << pv.P1 << "; " << pv.P2 << "; " << pv.P3 << "; " <<
@@ -201,5 +207,80 @@ namespace general
                 pv.V3 * m
             );
         }
-    }
+        Vec2::Vec2(Vec2&& v) noexcept
+        {
+            X = v.X;
+            Y = v.Y;
+            v.X = v.Y = 0;
+        }
+        Vec2& Vec2::operator=(Vec2&& v) noexcept
+        {
+            X = v.X;
+            Y = v.Y;
+            v.X = v.Y = 0;
+            return *this;
+        }
+        double Vec2::length() const
+        {
+            return std::sqrt(X * X + Y * Y);
+        }
+        Vec2& Vec2::operator+=(const Vec2& v)
+        {
+            X += v.X;
+            Y += v.Y;
+            return *this;
+        }
+        Vec2& Vec2::operator-=(const Vec2& v)
+        {
+            X -= v.X;
+            Y -= v.Y;
+            return *this;
+        }
+        Vec2& Vec2::operator/=(const double n)
+        {
+            X /= n;
+            Y /= n;
+            return *this;
+        }
+        Vec2& Vec2::operator*=(const double n)
+        {
+            X *= n;
+            Y *= n;
+            return *this;
+        }
+        std::ostream& operator<<(std::ostream& o, const Vec2& v)
+        {
+            o << "{ " << v.X << "; " << v.Y << "}";
+            return o;
+        }
+        std::istream& operator>>(std::istream& is, Vec2& v)
+        {
+            is >> v.X >> v.Y;
+            return is;
+        }
+        Vec2 operator+(const Vec2& f, const Vec2& s)
+        {
+            return Vec2(f.X + s.X, f.Y + s.Y);
+        }
+        Vec2 operator-(const Vec2& f, const Vec2& s)
+        {
+            return Vec2(f.X - s.X, f.Y - s.Y);
+        }
+        Vec2 operator*(const Vec2& v, const double n)
+        {
+            return Vec2(v.X * n, v.Y * n);
+        }
+        Vec2 operator/(const Vec2& v, const double n)
+        {
+            return Vec2(v.X / n, v.Y / n);
+        }
+        Vec2 operator*(const double n, const Vec2& v)
+        {
+            return Vec2(v.X * n, v.Y * n);
+        }
+        double operator*(const Vec2& f, const Vec2& s)
+        {
+            return f.X * s.X + f.Y * s.Y;
+        }
+}
 }
