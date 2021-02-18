@@ -45,7 +45,7 @@ namespace general
 		struct Vec3
 		{
 			double X, Y, Z;
-			Vec3() : X(0), Y(0), Z(0) {}
+			Vec3() noexcept : X(0), Y(0), Z(0) {}
 			Vec3(
 				const double x,
 				const double y,
@@ -82,10 +82,9 @@ namespace general
 		// Contains 3 position and 3 velocity values.
 		struct PV
 		{
-			double P1, P2, P3, V1, V2, V3;
+			Vec3 Pos, Vel;
 
-			PV() : P1(0), P2(0), P3(0), V1(0), V2(0), V3(0)
-			{}
+			PV() noexcept = default;
 			PV(
 				const double px,
 				const double py,
@@ -93,22 +92,16 @@ namespace general
 				const double vx,
 				const double vy,
 				const double vz) :
-				P1{ px }, P2{ py }, P3{ pz },
-				V1{ vx }, V2{ vy }, V3{ vz }
+				Pos{ Vec3(px, py, pz) }, Vel{ Vec3(vx, vy, vz) }
 			{}
 			PV(
 				const Vec3& position,
 				const Vec3& velocity) :
-				P1{ position.X },
-				P2{ position.Y },
-				P3{ position.Z },
-				V1{ velocity.X },
-				V2{ velocity.Y },
-				V3{ velocity.Z }
+				Pos{ position }, Vel{ velocity }
 			{}
 			PV(const PV& pv) noexcept = default;
 			PV(PV&& pv) noexcept;
-			~PV() = default;
+			~PV() noexcept = default;
 
 			PV& operator = (const PV& pv) noexcept = default;
 			PV& operator = (PV&& pv) noexcept;
@@ -116,11 +109,13 @@ namespace general
 			PV& operator += (const PV& pv);
 			PV& operator -= (const PV& pv);
 			PV& operator *= (const double m);
+			PV& operator /= (const double v);
 
 			friend PV operator + (const PV& f, const PV& s);
 			friend PV operator - (const PV& f, const PV& s);
 			friend PV operator * (const double m, const PV& pv);
 			friend PV operator * (const PV& pv, const double m);
+			friend PV operator / (const PV& pv, const double v);
 
 			friend std::ostream& operator << (std::ostream& o, const PV& pv);
 		};

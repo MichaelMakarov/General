@@ -26,7 +26,7 @@ namespace general
 			Quaternion& operator = (const Quaternion& q) noexcept;
 			Quaternion& operator = (Quaternion&& q) noexcept;
 
-			double module() const;
+			double mod() const;
 
 			Quaternion& operator += (const Quaternion& q);
 			Quaternion& operator -= (const Quaternion& q);

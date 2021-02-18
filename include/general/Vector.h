@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <array>
 #include <ostream>
 #include <istream>
 
@@ -9,51 +9,137 @@ namespace general
 	{
 		using long_t = long long;
 
-		class Vector : public std::vector<double>
+		template<size_t N>
+		class Vector : public std::array<double, N>
 		{
 		public:
-			Vector() : std::vector<double>() {}
-			explicit Vector(const size_t size) : std::vector<double>(size) {}
-			Vector(const std::initializer_list<double>& values) : std::vector<double>(values) {}
-			template<size_t size> Vector(const double(&values)[size]) : std::vector<double>(size)
+			Vector() noexcept : std::array<double, N>() {}
+			explicit Vector(const size_t size) : std::array<double, N>(size) {}
+			Vector(const std::initializer_list<double>& values) : std::array<double, N>()
 			{
+				if (values.size() != N) throw std::out_of_range("Invalid input list!");
+				size_t i = 0;
+				for (const auto& v : values)
+					operator[](i++) = v;
+			}
+			Vector(const double(&values)[N]) : std::array<double, N>() {
 				std::memcpy(data(), values, size * sizeof(double));
 			}
 			Vector(const Vector& vector) = default;
-			Vector(Vector&& vector) noexcept : std::vector<double>(vector) {}
-			Vector(const std::vector<double>& vector) : std::vector<double>(vector) {}
-			template<class IterType> Vector(IterType& begin, IterType& end) : std::vector<double>(begin, end) {}
+			Vector(Vector&& vector) noexcept : std::array<double, N>(vector) {}
+			Vector(const std::array<double, N>& arr) : std::array<double, N>(arr) {}
+			template<class IterType> Vector(const IterType& begin, const IterType& end) : std::array<double, N>() 
+			{
+				size_t n = end - begin;
+				if (n != N) 
+					throw std::out_of_range("Invalid number of values!");
+				n = 0;
+				for (auto iter = begin; iter != end; ++iter)
+					operator[](n++) = *iter;
+			}
 			~Vector() noexcept = default;
 
 			Vector& operator = (const Vector& vector) noexcept = default;
-			Vector& operator = (Vector&& vector) noexcept;
-
-			double length() const;
-
-			const double& operator [] (const long_t index) const
-			{ 
-				return static_cast<const std::vector<double>*>(this)->operator[](index < 0 ? index + size() : index); 
+			Vector& operator = (Vector&& vector) noexcept {
+				data() = std::move(vector.data());
+				return *this;
 			}
-			double& operator [] (const long_t index)
+
+			double length() const
 			{
-				return static_cast<std::vector<double>*>(this)->operator[](index < 0 ? index + size() : index);
+				double value{ 0 };
+				for (size_t i = 0; i < N; ++i)
+					value += this->operator[](i);
+				return std::sqrt(value);
 			}
 
-			Vector& operator += (const Vector& vector);
-			Vector& operator -= (const Vector& vector);
-			Vector& operator *= (const double value);
-			Vector& operator /= (const double value);
+			Vector& operator += (const Vector& vector)
+			{
+				for (size_t i = 0; i < N; ++i)
+					this->operator[](i) += vector[i];
+				return *this;
+			}
+			Vector& operator -= (const Vector& vector) 
+			{
+				for (size_t i = 0; i < N; ++i)
+					operator[](i) -= vector[i];
+			}
+			Vector& operator *= (const double value) 
+			{
+				for (size_t i = 0; i < N; ++i)
+					operator[](i) *= value;
+				return *this;
+			}
+			Vector& operator /= (const double value) 
+			{
+				for (size_t i = 0; i < N; ++i)
+					operator[](i) /= value;
+				return *this;
+			}
 
-			friend Vector operator + (const Vector& first, const Vector& second);
-			friend Vector operator - (const Vector& first, const Vector& second);
-			friend double operator * (const Vector& first, const Vector& second);
-			friend Vector operator * (const double value, const Vector& vector);
-			friend Vector operator * (const Vector& vector, const double value);
-			friend Vector operator / (const Vector& vector, const double value);
-			friend std::ostream& operator <<(std::ostream& os, const Vector& vector);
-			friend std::istream& operator >>(std::istream& is, Vector& vector);
+			friend Vector operator + (const Vector& first, const Vector& second)
+			{
+				Vector result;
+				for (size_t i = 0; i < N; ++i)
+					result[i] = first[i] + second[i];
+				return result;
+			}
+			friend Vector operator - (const Vector& first, const Vector& second)
+			{
+				Vector result;
+				for (size_t i = 0; i < N; ++i)
+					result[i] = first[i] - second[i];
+				return result;
+			}
+			friend double operator * (const Vector& first, const Vector& second)
+			{
+				double result{ 0 };
+				for (size_t i = 0; i < N; ++i)
+					result += first[i] * second[i];
+				return result;
+			}
+			friend Vector operator * (const double value, const Vector& vector)
+			{
+				Vector result;
+				for (size_t i = 0; i < N; ++i)
+					result[i] = value * vector[i];
+				return result;
+			}
+			friend Vector operator * (const Vector& vector, const double value)
+			{
+				Vector result;
+				for (size_t i = 0; i < N; ++i)
+					result[i] = value * vector[i];
+				return result;
+			}
+			friend Vector operator / (const Vector& vector, const double value)
+			{
+				Vector result;
+				for (size_t i = 0; i < N; ++i)
+					result[i] = vector[i] / value;
+				return result;
+			}
+			friend std::ostream& operator <<(std::ostream& os, const Vector& vector)
+			{
+				os << "{ ";
+				for (size_t i = 0; i < N - 1; ++i)
+					os << vector[i] << "; ";
+				os << vector[N - 1] << "}";
+				return os;
+			}
+			friend std::istream& operator >>(std::istream& is, Vector& vector)
+			{
+				for (size_t i = 0; i < N; ++i)
+					is >> vector[i];
+				return is;
+			}
 
-			static Vector ones(const size_t size);
+			template<size_t size> static Vector<size> ones()
+			{
+				Vector<size> vec;
+				for (size_t i = 0; i < size; ++i) vec[i] = 1.0;
+				return vec;
+			}
 
 		};
 	}

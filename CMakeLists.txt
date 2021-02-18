@@ -15,9 +15,7 @@ add_library(
 	src/Times.cpp
 	src/Mathematics.cpp
 	src/Legendre.cpp
-	src/Matrix3x3.cpp 
-	src/Vector.cpp 
-	src/Matrix.cpp 
+	src/Matrix3x3.cpp  
 	src/Quaternion.cpp
  )
 

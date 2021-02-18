@@ -1,75 +1,183 @@
 #pragma once
 #include "Vector.h"
-#include "IEnumerable.h"
 
 namespace general
 {
 	namespace math
 	{
-		class Matrix : public IEnumerable<double>
+		template<size_t M, size_t N>
+		class Matrix : public std::array<double, M * N>
 		{
-		private:
-
-			std::unique_ptr<double[]> _pValues;
-			size_t _nrows, _ncols;
-
-			void update();
-
 		public:
-			Matrix() : _nrows{ 0 }, _ncols{ 0 } { update(); }
-			Matrix(const size_t rows, const size_t columns) : 
-				_nrows{ rows }, _ncols{ columns }, _pValues{ std::make_unique<double[]>(rows * columns) }
-			{ update(); }
-			Matrix(const size_t rows, const size_t columns, const std::initializer_list<double>& values);
-			template<size_t rows, size_t columns> Matrix(const double(&values)[rows][columns])
+			Matrix() : std::array<double, M * N>() {}
+			Matrix(const std::initializer_list<double>& values)
 			{
-				_nrows = rows;
-				_ncols = columns;
-				_pValues = std::make_unique<double[]>(_nrows * _ncols);
-				for (size_t m = 0; m < _nrows; ++m)
-					std::memcpy(&_pValues[m * _ncols], values[m], _ncols * sizeof(double));
-				update();
+				if (values.size() != M * N) 
+					throw std::invalid_argument("Invalid args number!");
+				size_t index = 0;
+				for (const auto& v : values)
+					this->operator[](index++) = v;
 			}
-			Matrix(const size_t rows_number, const size_t columns_number, const std::vector<double> values);
-			Matrix(const Matrix& matrix) noexcept;
-			Matrix(Matrix&& matrix) noexcept;
-			~Matrix() noexcept { _nrows = _ncols = 0; }
-
-			Matrix& operator = (const Matrix& matrix) noexcept;
-			Matrix& operator = (Matrix&& matrix) noexcept;
-
-			size_t rows() const { return _nrows; }
-			size_t columns() const { return _ncols; }
-
-			double& operator () (const size_t m, const size_t n) const { return _pValues[m * _ncols + n]; }
-			double& operator () (long_t m, long_t n) const {
-				if (m < 0) m += _nrows;
-				if (n < 0) n += _ncols;
-				return _pValues[m * _ncols + n];
+			Matrix(const double(&values)[M][N])
+			{
+				for (size_t m = 0; m < M; ++m)
+					std::memcpy(&data()[m * N], values[m], N * sizeof(double));
 			}
-			Vector get_row(long_t index) const;
-			Vector get_column(long_t index) const;
-			void set_row(long_t index, const Vector& vector);
-			void set_column(long_t index, const Vector& vector);
+			Matrix(const Matrix& matrix) noexcept : std::array<double, M * N>(matrix) {};
+			Matrix(Matrix&& matrix) noexcept : std::array<double, M * N>(matrix) {}
+			~Matrix() noexcept = default;
 
-			Matrix& transpose();
+			Matrix& operator = (const Matrix& matrix) noexcept
+			{
+				std::memcpy(this->data(), matrix.data(), matrix.size() * sizeof(double));
+				return *this;
+			}
+			Matrix& operator = (Matrix&& matrix) noexcept
+			{
+				this->data() = std::move(matrix.data());
+				return *this;
+			}
 
-			Matrix& operator += (const Matrix& matrix);
-			Matrix& operator -= (const Matrix& matrix);
-			Matrix& operator *= (const double value);
-			Matrix& operator /= (const double value);
+			size_t rows() const { return M; }
+			size_t columns() const { return N; }
 
-			friend Matrix operator + (const Matrix& first, const Matrix& second);
-			friend Matrix operator - (const Matrix& first, const Matrix& second);
-			friend Matrix operator * (const Matrix& first, const Matrix& second);
-			friend Vector operator * (const Matrix& matrix, const Vector& vector);
-			friend Matrix operator * (const Matrix& matrix, const double value);
-			friend Matrix operator * (const double value, const Matrix& matrix);
-			friend Matrix operator / (const Matrix& matrix, const double value);
-			friend std::ostream& operator <<(std::ostream& os, const Matrix& matrix);
-			friend std::istream& operator >>(std::istream& is, Matrix& matrix);
+			const double& operator () (const size_t m, const size_t n) const { return this->operator[](m * N + n); }
+			double& operator () (const size_t m, const size_t n) { return this->operator[](m* N + n); }
+			Vector<N> get_row(size_t index) const
+			{
+				Vector<N> row;
+				for (size_t i = 0; i < N; ++i)
+					row[i] = this->operator()(index, i);
+				return row;
+			}
+			Vector<M> get_column(size_t index) const
+			{
+				Vector<M> column;
+				for (size_t i = 0; i < M; ++i)
+					column[i] = this->operator()(i, index);
+				return column;
+			}
+			void set_row(size_t index, const Vector<N>& vector)
+			{
+				for (size_t i = 0; i < N; ++i)
+					this->operator()(index, i) = vector[i];
+			}
+			void set_column(size_t index, const Vector<M>& vector)
+			{
+				for (size_t i = 0; i < M; ++i)
+					this->operator()(i, index) = vector[i];
+			}
 
-			static Matrix identity(const size_t size);
+			Matrix& operator += (const Matrix& matrix)
+			{
+				for (size_t i = 0; i < this->size(); ++i)
+					this->operator[](i) += matrix[i];
+				return *this;
+			}
+			Matrix& operator -= (const Matrix& matrix)
+			{
+				for (size_t i = 0; i < this->size(); ++i)
+					this->operator[](i) -= matrix[i];
+				return *this;
+			}
+			Matrix& operator *= (const double value)
+			{
+				for (size_t i = 0; i < this->size(); ++i)
+					this->operator[](i) *= value;
+				return *this;
+			}
+			Matrix& operator /= (const double value)
+			{
+				for (size_t i = 0; i < this->size(); ++i)
+					this->operator[](i) /= value;
+				return *this;
+			}
+
+			friend Matrix<M, N> operator + (const Matrix<M, N>& first, const Matrix<M, N>& second)
+			{
+				Matrix<M, N> result;
+				for (size_t i = 0; i < first.size(); ++i)
+					result[i] = first[i] + second[i];
+				return result;
+			}
+			friend Matrix<M, N> operator - (const Matrix<M, N>& first, const Matrix<M, N>& second)
+			{
+				Matrix<M, N> result;
+				for (size_t i = 0; i < first.size(); ++i)
+					result[i] = first[i] - second[i];
+				return result;
+			}
+			template<size_t K>
+			friend Matrix<M, N> operator * (const Matrix<M, K>& first, const Matrix<K, N>& second)
+			{
+				Matrix<M, N> result;
+				for (size_t m = 0; m < M; ++m)
+				{
+					for (size_t k = 0; k < K; ++k)
+					{
+						for (size_t n = 0; n < N; ++n)
+							result[m * K + n] =	first._pValues[m * K + k] * second._pValues[k * N + n];
+					}
+				}
+				return result;
+			}
+			friend Vector<M> operator * (const Matrix<M, N>& matrix, const Vector<N>& vector)
+			{
+				Vector<M> result;
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result[m] += matrix[m * N + n] * vector[n];
+				return result;
+			}
+			friend Matrix<M, N> operator * (const Matrix<M, N>& matrix, const double value)
+			{
+				Matrix<M, N> result;
+				for (size_t i = 0; i < result.size(); ++i)
+					result[i] = matrix[i] * value;
+				return result;
+			}
+			friend Matrix<M, N> operator * (const double value, const Matrix<M, N>& matrix)
+			{
+				Matrix<M, N> result;
+				for (size_t i = 0; i < result.size(); ++i)
+					result[i] = matrix[i] * value;
+				return result;
+			}
+			friend Matrix<M, N> operator / (const Matrix<M, N>& matrix, const double value)
+			{
+				Matrix<M, N> result;
+				for (size_t i = 0; i < result.size(); ++i)
+					result[i] = matrix[i] / value;
+				return result;
+			}
+			friend std::ostream& operator <<(std::ostream& os, const Matrix<M, N>& matrix)
+			{
+				os << "{ ";
+				for (size_t m = 0; m < M; ++m)
+				{
+					os << "{ ";
+					for (size_t n = 0; n < N; ++n)
+						os << matrix[m * N + n] << "; ";
+					os << "} ";
+				}
+				os << "}";
+				return os;
+			}
+			friend std::istream& operator >>(std::istream& is, Matrix& matrix)
+			{
+				for (size_t i = 0; i < matrix.size(); ++i)
+					is >> matrix[i];
+				return is;
+			}
+
+			static Matrix<M, N> identity()
+			{
+				static_assert(M == N, "Matrix is not square!");
+				Matrix<M, N> result;
+				for (size_t i = 0; i < M; ++i)
+					result[i * N + i] = 1.0;
+				return result;
+			}
 		};
 	}
 }

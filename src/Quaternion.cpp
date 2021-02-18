@@ -22,7 +22,7 @@ namespace general
 			q.S = q.X = q.Y = q.Z = 0;
 			return *this;
 		}
-		double Quaternion::module() const
+		double Quaternion::mod() const
 		{
 			return std::sqrt(S * S + X * X + Y * Y + Z * Z);
 		}
@@ -77,7 +77,7 @@ namespace general
 		}
 		double Quaternion::angle(const Quaternion& f, const Quaternion& s)
 		{
-			return dot(f, s) / f.module() / s.module();
+			return dot(f, s) / f.mod() / s.mod();
 		}
 		Quaternion Quaternion::inv(const Quaternion& q)
 		{
