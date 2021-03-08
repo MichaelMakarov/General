@@ -1,47 +1,52 @@
 #pragma once
 #include <array>
+#include <vector>
 #include <ostream>
 #include <istream>
+#include <type_traits>
+#include <concepts>
 
 namespace general
 {
 	namespace math
 	{
-		using long_t = long long;
+		template<size_t T> 
+		concept NotZero = requires { { T > 0 }; };
 
-		template<size_t N>
-		class Vector : public std::array<double, N>
+		template<size_t N> requires NotZero<N>
+		class VectorFix : public std::array<double, N>
 		{
+			static_assert(N > size_t(0), "VectorFix size is equal zero!");
 		public:
-			Vector() noexcept : std::array<double, N>() {}
-			explicit Vector(const size_t size) : std::array<double, N>(size) {}
-			Vector(const std::initializer_list<double>& values) : std::array<double, N>()
+			VectorFix() noexcept : std::array<double, N>() {}
+			explicit VectorFix(const size_t size) : std::array<double, N>(size) {}
+			VectorFix(const std::initializer_list<double>& values) : std::array<double, N>()
 			{
 				if (values.size() != N) throw std::out_of_range("Invalid input list!");
 				size_t i = 0;
 				for (const auto& v : values)
-					operator[](i++) = v;
+					this->operator[](i++) = v;
 			}
-			Vector(const double(&values)[N]) : std::array<double, N>() {
-				std::memcpy(data(), values, size * sizeof(double));
+			VectorFix(const double(&values)[N]) : std::array<double, N>() {
+				std::memcpy(this->data(), values, N * sizeof(double));
 			}
-			Vector(const Vector& vector) = default;
-			Vector(Vector&& vector) noexcept : std::array<double, N>(vector) {}
-			Vector(const std::array<double, N>& arr) : std::array<double, N>(arr) {}
-			template<class IterType> Vector(const IterType& begin, const IterType& end) : std::array<double, N>() 
+			VectorFix(const VectorFix& VectorFix) = default;
+			VectorFix(VectorFix&& VectorFix) noexcept : std::array<double, N>(VectorFix) {}
+			VectorFix(const std::array<double, N>& arr) : std::array<double, N>(arr) {}
+			template<class IterType> VectorFix(const IterType& begin, const IterType& end) : std::array<double, N>() 
 			{
 				size_t n = end - begin;
 				if (n != N) 
 					throw std::out_of_range("Invalid number of values!");
 				n = 0;
 				for (auto iter = begin; iter != end; ++iter)
-					operator[](n++) = *iter;
+					this->operator[](n++) = *iter;
 			}
-			~Vector() noexcept = default;
+			~VectorFix() noexcept = default;
 
-			Vector& operator = (const Vector& vector) noexcept = default;
-			Vector& operator = (Vector&& vector) noexcept {
-				data() = std::move(vector.data());
+			VectorFix& operator = (const VectorFix& VectorFix) noexcept = default;
+			VectorFix& operator = (VectorFix&& VectorFix) noexcept {
+				this->data() = std::move(VectorFix.data());
 				return *this;
 			}
 
@@ -53,94 +58,144 @@ namespace general
 				return std::sqrt(value);
 			}
 
-			Vector& operator += (const Vector& vector)
+			VectorFix& operator += (const VectorFix& VectorFix)
 			{
 				for (size_t i = 0; i < N; ++i)
-					this->operator[](i) += vector[i];
+					this->operator[](i) += VectorFix[i];
 				return *this;
 			}
-			Vector& operator -= (const Vector& vector) 
+			VectorFix& operator -= (const VectorFix& VectorFix) 
 			{
 				for (size_t i = 0; i < N; ++i)
-					operator[](i) -= vector[i];
+					this->operator[](i) -= VectorFix[i];
 			}
-			Vector& operator *= (const double value) 
+			VectorFix& operator *= (const double value) 
 			{
 				for (size_t i = 0; i < N; ++i)
-					operator[](i) *= value;
+					this->operator[](i) *= value;
 				return *this;
 			}
-			Vector& operator /= (const double value) 
+			VectorFix& operator /= (const double value) 
 			{
 				for (size_t i = 0; i < N; ++i)
-					operator[](i) /= value;
+					this->operator[](i) /= value;
 				return *this;
 			}
 
-			friend Vector operator + (const Vector& first, const Vector& second)
+			friend VectorFix operator + (const VectorFix& first, const VectorFix& second)
 			{
-				Vector result;
+				VectorFix result;
 				for (size_t i = 0; i < N; ++i)
 					result[i] = first[i] + second[i];
 				return result;
 			}
-			friend Vector operator - (const Vector& first, const Vector& second)
+			friend VectorFix operator - (const VectorFix& first, const VectorFix& second)
 			{
-				Vector result;
+				VectorFix result;
 				for (size_t i = 0; i < N; ++i)
 					result[i] = first[i] - second[i];
 				return result;
 			}
-			friend double operator * (const Vector& first, const Vector& second)
+			friend double operator * (const VectorFix& first, const VectorFix& second)
 			{
 				double result{ 0 };
 				for (size_t i = 0; i < N; ++i)
 					result += first[i] * second[i];
 				return result;
 			}
-			friend Vector operator * (const double value, const Vector& vector)
+			friend VectorFix operator * (const double value, const VectorFix& vec)
 			{
-				Vector result;
+				VectorFix result;
 				for (size_t i = 0; i < N; ++i)
-					result[i] = value * vector[i];
+					result[i] = value * vec[i];
 				return result;
 			}
-			friend Vector operator * (const Vector& vector, const double value)
+			friend VectorFix operator * (const VectorFix& vec, const double value)
 			{
-				Vector result;
+				VectorFix result;
 				for (size_t i = 0; i < N; ++i)
-					result[i] = value * vector[i];
+					result[i] = value * vec[i];
 				return result;
 			}
-			friend Vector operator / (const Vector& vector, const double value)
+			friend VectorFix operator / (const VectorFix& vec, const double value)
 			{
-				Vector result;
+				VectorFix result;
 				for (size_t i = 0; i < N; ++i)
-					result[i] = vector[i] / value;
+					result[i] = vec[i] / value;
 				return result;
 			}
-			friend std::ostream& operator <<(std::ostream& os, const Vector& vector)
+			friend std::ostream& operator <<(std::ostream& os, const VectorFix& vec)
 			{
 				os << "{ ";
 				for (size_t i = 0; i < N - 1; ++i)
-					os << vector[i] << "; ";
-				os << vector[N - 1] << "}";
+					os << vec[i] << "; ";
+				os << vec[N - 1] << "}";
 				return os;
 			}
-			friend std::istream& operator >>(std::istream& is, Vector& vector)
+			friend std::istream& operator >>(std::istream& is, VectorFix& vec)
 			{
 				for (size_t i = 0; i < N; ++i)
-					is >> vector[i];
+					is >> vec[i];
 				return is;
 			}
 
-			template<size_t size> static Vector<size> ones()
+			template<size_t size> static VectorFix<size> ones()
 			{
-				Vector<size> vec;
+				VectorFix<size> vec;
 				for (size_t i = 0; i < size; ++i) vec[i] = 1.0;
 				return vec;
 			}
+		};
+
+		template<size_t size>
+		VectorFix<size> normalize(const VectorFix<size>& vec)
+		{
+			return vec / vec.length();
+		}
+
+
+		class VectorDyn : public std::vector<double>
+		{
+		public:
+			VectorDyn() : std::vector<double>() {}
+			VectorDyn(const size_t size) : std::vector<double>(size) {}
+			VectorDyn(const std::initializer_list<double>& list) : std::vector<double>(list) {}
+			template<size_t size> VectorDyn(const double(&arr)[size]) : std::vector<double>(size) 
+			{
+				std::memcpy(this->data(), arr, sizeof(double) * size);
+			}
+			VectorDyn(const std::vector<double>& vec) : std::vector<double>(vec) {}
+			template<size_t size> VectorDyn(const VectorFix<size>& vec) : std::vector<double>(size)
+			{
+				std::memcpy(this->data(), vec.data(), sizeof(double) * size);
+			}
+			VectorDyn(const VectorDyn& vec) : std::vector<double>(vec) {}
+			VectorDyn(VectorDyn&& vec) noexcept : std::vector<double>(vec) {}
+			~VectorDyn() = default;
+
+			VectorDyn& operator = (const VectorDyn& vec) = default;
+			VectorDyn& operator = (VectorDyn&& vec) noexcept;
+
+			double length() const;
+
+			VectorDyn& operator += (const VectorDyn& vec);
+			VectorDyn& operator -= (const VectorDyn& vec);
+			VectorDyn& operator *= (const double value);
+			VectorDyn& operator /= (const double value);
+
+			friend VectorDyn operator + (const VectorDyn& first, const VectorDyn& second);
+			friend VectorDyn operator - (const VectorDyn& first, const VectorDyn& second);
+			friend double operator * (const VectorDyn& first, const VectorDyn& second);
+			friend VectorDyn operator * (const double value, const VectorDyn& vec);
+			friend VectorDyn operator * (const VectorDyn& vec, const double value);
+			friend VectorDyn operator / (const VectorDyn& vec, const double value);
+			friend std::ostream& operator <<(std::ostream& os, const VectorDyn& vec);
+			friend std::istream& operator >>(std::istream& is, VectorDyn& vec);
+
+			static VectorDyn ones(const size_t size);
 
 		};
+
+		VectorDyn normalize(const VectorDyn& vec);
 	}
 }

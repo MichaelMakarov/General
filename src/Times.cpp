@@ -210,6 +210,56 @@ namespace general
 			return f._date == s._date && f._time == s._time;
 		}
 
+		bool try_parse(const std::string& str, DateTime& dt, const std::string& format)
+		{
+			char separators[6]{ 0 };
+			auto get_index = [](const char symbol) {
+				switch (symbol) {
+					case 'y': return 0;
+					case 'M': return 1;
+					case 'd': return 2;
+					case 'h': return 3;
+					case 'm': return 4;
+					case 's': return 5;
+					case 'f': return 6;
+				}
+				return 7;
+			};
+			size_t data[7]{ 0 }, indices[7]{ 0 };
+			size_t index{ 0 };
+			size_t value;
+			for (const char& c : format) {
+				value = get_index(c);
+				if (value == 7) separators[index++] = c;
+				else indices[index] = value;
+			}
+			if (index < 6) return false;
+			std::string buf;
+			index = 0;
+			for (const char& c : str) {
+				if (c != separators[index]) buf.push_back(c);
+				else {
+					if (indices[index] == 6) value = buf.size();
+					data[indices[index++]] = std::atoi(buf.c_str());
+					buf.clear();
+				}
+			}
+			if (buf.size() != 0) data[indices[index]] = std::atoi(buf.c_str()); 
+			if (indices[index] == 6) value = buf.size();
+			try {
+				dt = DateTime(
+					data[0],
+					static_cast<unsigned short>(data[1]),
+					static_cast<unsigned short>(data[2]),
+					static_cast<unsigned short>(data[3]),
+					static_cast<unsigned short>(data[4]),
+					static_cast<unsigned short>(data[5]),
+					static_cast<unsigned short>(data[6] * std::pow(10, 3 - static_cast<double>(value)))
+				);
+			} catch (std::exception) { return false; }
+			return true;
+		}
+
 		JD::JD(const double jd)
 		{
 			if (jd < 0) throw std::invalid_argument("Invalid julian date < 0!");
@@ -286,6 +336,22 @@ namespace general
 			return *this;
 		}
 
+		JD& JD::operator += (const double dt)
+		{
+			double day;
+			_time = std::modf(_time + dt, &day);
+			_day += static_cast<size_t>(day);
+			return *this;
+		}
+
+		JD& JD::operator -= (const double dt)
+		{
+			double day;
+			_time = std::modf(_time - dt, &day);
+			_day += static_cast<size_t>(day);
+			return *this;
+		}
+
 		void JD::add_days(const int n)
 		{
 			_day += n;
@@ -333,11 +399,11 @@ namespace general
 
 		bool operator < (const JD& f, const JD& s)
 		{
-			return f._day < s._day && f._time < s._time;
+			return f._day < s._day || (f._day == s._day && f._time < s._time);
 		}
 		bool operator > (const JD& f, const JD& s)
 		{
-			return f._day > s._day && f._time > s._time;;
+			return f._day > s._day || (f._day == s._day && f._time > s._time);
 		}
 		bool operator == (const JD& f, const JD& s)
 		{

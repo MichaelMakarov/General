@@ -72,6 +72,15 @@ void test_datetime()
 	std::cout << "JD5 to DateTime: " << jd5.to_datetime() << std::endl;
 	std::cout << "JD6 to DateTime: " << jd6.to_datetime() << std::endl;
 
+	DateTime dt6, dt7;
+	if (!try_parse("2010/12/11 23:34:56.231", dt6)) {
+		std::cout << "Failed to parse datetime!\n";
+	}
+	else std::cout << "dt6 parsed: " << dt6 << std::endl;
+	if (!try_parse("13/11/2021 13:1:3.111111", dt7, "dd/MM/yyyy hh:m:s.ffffff")) {
+		std::cout << "Failed to parse datetime!\n";
+	}
+	else std::cout << "dt7 parsed: " << dt7 << std::endl;
 }
 
 void test_legendre()
@@ -144,12 +153,12 @@ void test_vector()
 {
 	std::cout << "\n...Vector tests...\n";
 
-	auto vec1{ Vector<5>() };
-	auto vec2{ Vector<10>() };
-	Vector<7> vec3 = { 2.3, -0.1, 9.8, 12, 4.3, -1.5, 0.9 };
+	auto vec1{ VectorFix<5>() };
+	auto vec2{ VectorFix<10>() };
+	VectorFix<7> vec3 = { 2.3, -0.1, 9.8, 12, 4.3, -1.5, 0.9 };
 	std::array<double, 9> array = { 5, 5, 5, 5, 5, 1, 1, 1, 2 };
-	Vector vec4{ array };
-	auto vec5{ Vector<9>(array.begin(), array.end()) };
+	VectorFix vec4{ array };
+	auto vec5{ VectorFix<9>(array.begin(), array.end()) };
 	auto vec6{ vec5 };
 
 	std::cout << "empty vector of size 0: " << vec1 << std::endl;
@@ -162,6 +171,8 @@ void test_vector()
 	std::cout << "vector 2 length = " << vec2.length() << std::endl;
 	std::cout << "vector 3 length = " << vec3.length() << std::endl;
 	std::cout << "vector 3 * vector 4 = " << vec5 * vec4 << std::endl;
+
+	auto vec7{ VectorDyn(4) };
 }
 
 void test_matrix()
@@ -170,14 +181,16 @@ void test_matrix()
 
 	auto list = { 4.0, 5.0, -1.0, -5.6, 10.0, 2.34, -0.31, 3.33, -9.0 };
 	const double array2d[2][5]{ { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 0 } };
-	Matrix<3, 3> m1;
-	auto m2{ Matrix<5, 4>() };
-	auto m3{ Matrix<3, 3>(list) };
-	auto m4{ Matrix<2, 5>(array2d) };
+	MatrixFix<3, 3> m1;
+	auto m2{ MatrixFix<5, 4>() };
+	auto m3{ MatrixFix<3, 3>(list) };
+	auto m4{ MatrixFix<2, 5>(array2d) };
 	auto m5{ m3 };
-	auto v{ Vector<5>({2, -1, 0, 0, 3}) };
+	auto v{ VectorFix<5>({2, -1, 0, 0, 3}) };
 	const double n{ 0.5 };
-	auto m6{ Matrix<4, 4>::identity() };
+	auto m6 = MatrixFix<4, 4>::identity();
+	auto m7{ MatrixFix<3, 3>({ {2, 1, 3}, {1, 3, -3}, {-2, 4, 4} }) };
+	auto m8{ inverse(m7) };
 
 	std::cout << "Matrix1: rows = " << m1.rows() << ", columns = " << m1.columns() << std::endl;
 	std::cout << "Matrix 1: " << m1 << std::endl;
@@ -191,6 +204,9 @@ void test_matrix()
 	std::cout << "Matrix 3 column 2: " << m3.get_column(2) << std::endl;
 	std::cout << "Matrix 5: " << m5 << std::endl;
 	std::cout << "Matrix 6 (identity): " << m6 << std::endl;
+	std::cout << "Matrix 3 inverse: " << m7 << std::endl;
+	std::cout << "Inversion checking: " << m8 * m7 << std::endl;
+	std::cout << "Matrix 3 determinant = " << m3.det() << std::endl;
 }
 
 void test_quaternion()

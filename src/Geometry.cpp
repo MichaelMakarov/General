@@ -104,7 +104,7 @@ namespace general
 
         std::ostream& operator << (std::ostream& o, const PV& pv)
         {
-            o << "pos: " << pv.Pos << "; vel: " << pv.Vel << ";";
+            o << "pos: " << pv.Pos << "; vel: " << pv.Vel;
             return o;
         }
 
@@ -119,6 +119,25 @@ namespace general
             Pos = std::move(pv.Pos);
             Vel = std::move(pv.Vel);
             return *this;
+        }
+        const double& PV::get_by_index(const size_t index) const
+        {
+            switch (index) {
+            case 0: return Pos.X;
+            case 1: return Pos.Y;
+            case 2: return Pos.Z;
+            case 3: return Vel.X;
+            case 4: return Vel.Y;
+            case 5: return Vel.Z;
+            } throw std::out_of_range("Index is out of range!");
+        }
+        double& PV::operator [] (const size_t index)
+        {
+            return const_cast<double&>(get_by_index(index));
+        }
+        const double& PV::operator [] (const size_t index) const
+        {
+            return get_by_index(index);
         }
 
         PV& PV::operator += (const PV& pv)

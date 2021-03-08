@@ -82,6 +82,9 @@ namespace general
 		// Contains 3 position and 3 velocity values.
 		struct PV
 		{
+		private:
+			const double& get_by_index(const size_t index) const;
+		public:
 			Vec3 Pos, Vel;
 
 			PV() noexcept = default;
@@ -105,6 +108,9 @@ namespace general
 
 			PV& operator = (const PV& pv) noexcept = default;
 			PV& operator = (PV&& pv) noexcept;
+
+			double& operator [] (const size_t index);
+			const double& operator [] (const size_t index) const;
 
 			PV& operator += (const PV& pv);
 			PV& operator -= (const PV& pv);

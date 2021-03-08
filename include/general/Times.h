@@ -1,14 +1,18 @@
 #pragma once
 #include <ostream>
+#include <string>
 
 namespace general
 {
 	namespace time
 	{
+		class DateTime;
+
 		// Class implements the functionality of the date.
 		// It contains year, month and day.
 		class Date
 		{
+			friend DateTime;
 		private:
 			size_t _year;
 			unsigned short _month;
@@ -47,6 +51,7 @@ namespace general
 		// Contains hour, minute, second and millisecond.
 		class Time
 		{
+			friend DateTime;
 		private:
 			unsigned short _hour, _minute, _second, _millisec;
 
@@ -104,6 +109,14 @@ namespace general
 			const Date& get_date() const { return _date; }
 			const Time& get_time() const { return _time; }
 
+			size_t get_year() const { return _date._year; }
+			unsigned short get_month() const { return _date._month; }
+			unsigned short get_day() const { return _date._day; }
+			unsigned short get_hour() const { return _time._hour; }
+			unsigned short get_minute() const { return _time._minute; }
+			unsigned short get_second() const { return _time._second; }
+			unsigned short get_millisecond() const { return _time._millisec; }
+
 			DateTime& operator = (const DateTime& dt) noexcept = default;
 			DateTime& operator = (DateTime&& dt) noexcept;
 
@@ -113,6 +126,15 @@ namespace general
 
 			friend std::ostream& operator << (std::ostream& o, const DateTime& d);
 		};
+
+		/// <summary>
+		/// Parsing the datetime from string
+		/// </summary>
+		/// <param name="str"> - a string representation of datetime</param>
+		/// <param name="dt"> - a sample of datetime will be parsed to</param>
+		/// <param name="format"> - a string format of datetime representation (y - year, M - month, d - day, h - hour, M - minute, s - second, f - millisecond)</param>
+		/// <returns>true if succeeded</returns>
+		bool try_parse(const std::string& str, DateTime& dt, const std::string& format = "y/M/d h:m:s.f");
 
 		// Represents the julian date refered to midnight count down.
 		class JD
@@ -142,6 +164,9 @@ namespace general
 			DateTime to_datetime() const;
 			// Representing as single number
 			double to_double() const;
+
+			JD& operator += (const double dt);
+			JD& operator -= (const double dt);
 
 			void add_days(const int n);
 			void add_hours(const int n);
