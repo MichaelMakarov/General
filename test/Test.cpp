@@ -1,6 +1,6 @@
 #include "Times.h"
 #include "GeneralConstants.h"
-#include "Legendre.h"
+#include "Polynomial.h"
 #include "Matrix3x3.h"
 #include "Vector.h"
 #include "Matrix.h"
@@ -13,7 +13,7 @@ using namespace general::time;
 using namespace general::math;
 
 void test_datetime();
-void test_legendre();
+void test_polynomials();
 void test_matrix3();
 void test_vector();
 void test_matrix();
@@ -22,7 +22,7 @@ void test_quaternion();
 int main()
 {
 	test_datetime();
-	test_legendre();
+	test_polynomials();
 	test_matrix3();
 	test_vector();
 	test_matrix();
@@ -119,6 +119,42 @@ void test_legendre()
 	std::cout << "P15_0(" << v2 << ") = " << f3(v2) << std::endl;
 	std::cout << "P3_2(" << v2 << ") = " << f4(v2) << std::endl;
 	std::cout << "P4_4(" << v2 << ") = " << f5(v2) << std::endl;
+}
+
+void test_power()
+{
+	std::cout << "\n...Power polynomial test...\n";
+
+	const auto x{ VectorDyn({ 1.0, 2.0, 3.0, 4.0, 5.0}) };
+	const auto y{ VectorDyn({ 0.5, -0.6, 0.52, 3.4, 8.4999 }) };
+	auto poly = create_polynom(x, y, 2);
+	std::cout << "Differences: ";
+	for (size_t i = 0; i < 5; ++i) {
+		std::cout << "y - p(" << x[i] << ") = " << y[i] - poly(x[i]) << "; ";
+	}
+	std::cout << std::endl;
+}
+
+void test_newtonian()
+{
+	std::cout << "\n...Newtonian polynomial test...\n";
+
+	const double x[]{ 1.0, 2.0, 3.0, 4.0, 5.0 };
+	const double y[]{ 0.5, -0.6, 0.52, 3.4, 8.4999 };
+	auto poly{ NewtonianPolynomial(x, y) };
+	double arg{ x[0] };
+	while (arg <= x[4]) {
+		std::cout << "P(" << arg << ") = " << poly(arg) << "; ";
+		arg += 0.1;
+	}
+	std::cout << std::endl;
+}
+
+void test_polynomials()
+{
+	test_legendre();
+	test_power();
+	test_newtonian();
 }
 
 void test_matrix3()

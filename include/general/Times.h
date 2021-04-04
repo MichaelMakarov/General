@@ -1,5 +1,6 @@
 #pragma once
 #include <ostream>
+#include <istream>
 #include <string>
 
 namespace general
@@ -8,8 +9,9 @@ namespace general
 	{
 		class DateTime;
 
-		// Class implements the functionality of the date.
-		// It contains year, month and day.
+		/// <summary>
+		/// Class implements date functionality and contains year, month and day
+		/// </summary>
 		class Date
 		{
 			friend DateTime;
@@ -45,10 +47,12 @@ namespace general
 			friend bool operator == (const Date& f, const Date& s);
 
 			friend std::ostream& operator << (std::ostream& o, const Date& d);
+			friend std::istream& operator >> (std::istream& i, Date& d);
 		};
 
-		// Class implements time of the day;
-		// Contains hour, minute, second and millisecond.
+		/// <summary>
+		/// Class implements time of the day and contains hour, minute, second and millisecond
+		/// </summary>
 		class Time
 		{
 			friend DateTime;
@@ -81,7 +85,9 @@ namespace general
 			friend std::ostream& operator << (std::ostream& o, const Time& d);
 		};
 
-		// Class implements both date and time of the day.
+		/// <summary>
+		/// Class implements functionality of date and time of the day
+		/// </summary>
 		class DateTime
 		{
 		private:
@@ -89,7 +95,7 @@ namespace general
 			Time _time;
 
 		public:
-			DateTime() : _date{}, _time{} {}
+			DateTime() = default;
 			DateTime(const Date& date, const Time& time) : _date{ date }, _time{ time } {}
 			DateTime(
 				const size_t year,
@@ -125,6 +131,8 @@ namespace general
 			friend bool operator == (const DateTime& f, const DateTime& s);
 
 			friend std::ostream& operator << (std::ostream& o, const DateTime& d);
+
+			static DateTime now();
 		};
 
 		/// <summary>
@@ -136,17 +144,22 @@ namespace general
 		/// <returns>true if succeeded</returns>
 		bool try_parse(const std::string& str, DateTime& dt, const std::string& format = "y/M/d h:m:s.f");
 
-		// Represents the julian date refered to midnight count down.
+		/// <summary>
+		/// Class implements julian date refered to midnight count down
+		/// </summary>
 		class JD
 		{
+			using long_t = long long;
 		private:
-			size_t _day;
+			long_t _day;
 			double _time;
 
+			void shift_behind() { _time += 1.0; _day -= 1; }
+
 		public:
-			JD() : _day{ 0 }, _time{ 0 } {}
+			JD() : _day{ 1 }, _time{ 0 } {}
 			explicit JD(const DateTime& datetime);
-			JD(const size_t day, const double time);
+			JD(const long_t day, const double time);
 			JD(const double jd);
 			JD(const JD& jd) noexcept = default;
 			JD(JD && jd) noexcept;
@@ -156,22 +169,36 @@ namespace general
 			JD& operator = (const JD& jd) noexcept = default;
 			JD& operator = (JD && jd) noexcept;
 			
-			// A day number
-			size_t JDN() const { return _day; }
-			// Time of the day as part of the day
+			/// <summary>
+			/// day number (integer part of julian date)
+			/// </summary>
+			/// <returns>day number</returns>
+			long_t JDN() const { return _day; }
+			/// <summary>
+			/// part of the day
+			/// </summary>
+			/// <returns>value between 0 and 1</returns>
 			double T() const { return _time; }
-			// Conversion to corresponding datetime
+			/// <summary>
+			/// conversion to corresponding datetime structure
+			/// </summary>
+			/// <returns>corresponding datetime</returns>
 			DateTime to_datetime() const;
 			// Representing as single number
+
+			/// <summary>
+			/// representing as a single number (an integer part is day number + fractional part is a part of the day)
+			/// </summary>
+			/// <returns>single value</returns>
 			double to_double() const;
 
 			JD& operator += (const double dt);
 			JD& operator -= (const double dt);
 
-			void add_days(const int n);
-			void add_hours(const int n);
-			void add_minutes(const int n);
-			void add_seconds(const int n);
+			JD& add_days(const int n);
+			JD& add_hours(const int n);
+			JD& add_minutes(const int n);
+			JD& add_seconds(const int n);
 
 			friend JD operator + (const JD& jd, const double dt);
 			friend JD operator - (const JD& jd, const double dt);

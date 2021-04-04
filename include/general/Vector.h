@@ -159,7 +159,7 @@ namespace general
 		public:
 			VectorDyn() : std::vector<double>() {}
 			VectorDyn(const size_t size) : std::vector<double>(size) {}
-			VectorDyn(const std::initializer_list<double>& list) : std::vector<double>(list) {}
+			//VectorDyn(const std::initializer_list<double>& list) : std::vector<double>(list) {}
 			template<size_t size> VectorDyn(const double(&arr)[size]) : std::vector<double>(size) 
 			{
 				std::memcpy(this->data(), arr, sizeof(double) * size);

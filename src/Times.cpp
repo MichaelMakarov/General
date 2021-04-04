@@ -3,6 +3,8 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <chrono>
+
 
 namespace general
 {
@@ -66,11 +68,9 @@ namespace general
 		bool operator > (const Date& f, const Date& s)
 		{
 			if (f._year > s._year) return true;
-			else if (f._year == s._year)
-			{
+			else if (f._year == s._year) {
 				if (f._month > s._month) return true;
-				else if (f._month == s._month)
-				{
+				else if (f._month == s._month) {
 					return f._day > s._day;
 				}
 			}
@@ -79,11 +79,9 @@ namespace general
 		bool operator < (const Date& f, const Date& s)
 		{
 			if (f._year < s._year) return true;
-			else if (f._year == s._year)
-			{
+			else if (f._year == s._year) {
 				if (f._month < s._month) return true;
-				else if (f._month == s._month)
-				{
+				else if (f._month == s._month) {
 					return f._day < s._day;
 				}
 			}
@@ -98,6 +96,11 @@ namespace general
 		{
 			o << d._year << '/' << d._month << '/' << d._day;
 			return o;
+		}
+		std::istream& operator >> (std::istream& i, Date& d)
+		{
+			i >> d._year >> d._month >> d._day;
+			return i;
 		}
 
 
@@ -225,7 +228,7 @@ namespace general
 				}
 				return 7;
 			};
-			size_t data[7]{ 0 }, indices[7]{ 0 };
+			size_t data[7]{ 1, 1, 1, 0, 0, 0 }, indices[7]{ 0 };
 			size_t index{ 0 };
 			size_t value;
 			for (const char& c : format) {
@@ -233,7 +236,7 @@ namespace general
 				if (value == 7) separators[index++] = c;
 				else indices[index] = value;
 			}
-			if (index < 6) return false;
+			if (index < 3) return false;
 			std::string buf;
 			index = 0;
 			for (const char& c : str) {
@@ -260,12 +263,25 @@ namespace general
 			return true;
 		}
 
+		DateTime DateTime::now()
+		{
+			auto time{ std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) };
+			auto t = std::localtime(&time);
+			return DateTime(
+				size_t(1900) + static_cast<size_t>(t->tm_year), 
+				static_cast<unsigned short>(t->tm_mon + 1), 
+				static_cast<unsigned short>(t->tm_mday), 
+				static_cast<unsigned short>(t->tm_hour), 
+				static_cast<unsigned short>(t->tm_min), 
+				static_cast<unsigned short>(t->tm_sec));
+		}
+
 		JD::JD(const double jd)
 		{
 			if (jd < 0) throw std::invalid_argument("Invalid julian date < 0!");
 			double jdn;
 			_time = std::modf(jd, &jdn);
-			_day = static_cast<size_t>(jdn);
+			_day = static_cast<long_t>(jdn);
 		}
 		JD::JD(const DateTime& dt)
 		{
@@ -278,10 +294,10 @@ namespace general
 			_time = (t.get_hour() + (t.get_minute() + (t.get_second() + t.get_millisecond() * 1e-3) / 60) / 60) / 24;
 		}
 
-		JD::JD(const size_t day, const double time)
+		JD::JD(const long_t day, const double time)
 		{
 			if (time > 0 && time < 1.0) {
-				_day = day;
+				_day = static_cast<long_t>(day);
 				_time = time;
 			}
 			else throw std::invalid_argument("Time is invalid (should be 0 < t < 1)!");
@@ -290,7 +306,7 @@ namespace general
 		DateTime JD::to_datetime() const
 		{
 			size_t
-				a = _day + 32044,
+				a = static_cast<size_t>(_day) + 32044,
 				b = (4 * a + 3) / 146097,
 				c = a - (146097 * b) / 4,
 				d = (4 * c + 3) / 1461,
@@ -320,19 +336,19 @@ namespace general
 		{
 			double jdn;
 			_time = std::modf(jd, &jdn);
-			_day = static_cast<size_t>(jdn);
+			_day = static_cast<long_t>(jdn);
 			return *this;
 		}
 		JD::JD(JD&& jd) noexcept : _day{ jd._day }, _time{ jd._time }
 		{
-			jd._time = 0; jd._day = 0;
+			jd._time = 0; jd._day = 1;
 		}
 
 		JD& JD::operator = (JD&& jd) noexcept
 		{
 			_day = jd._day;
 			_time = jd._time;
-			jd._time = 0; jd._day = 0;
+			jd._time = 0; jd._day = 1;
 			return *this;
 		}
 
@@ -340,7 +356,7 @@ namespace general
 		{
 			double day;
 			_time = std::modf(_time + dt, &day);
-			_day += static_cast<size_t>(day);
+			_day += static_cast<long_t>(day);
 			return *this;
 		}
 
@@ -348,31 +364,38 @@ namespace general
 		{
 			double day;
 			_time = std::modf(_time - dt, &day);
-			_day += static_cast<size_t>(day);
+			_day += static_cast<long_t>(day);
 			return *this;
 		}
 
-		void JD::add_days(const int n)
+		JD& JD::add_days(const int n)
 		{
 			_day += n;
+			return *this;
 		}
-		void JD::add_hours(const int n)
+		JD& JD::add_hours(const int n)
 		{
 			double day;
 			_time = std::modf(_time + n / HOURS_PER_DAY, &day);
-			_day += static_cast<size_t>(day);
+			_day += static_cast<long_t>(day);
+			if (_time < 0.0) shift_behind();
+			return *this;
 		}
-		void JD::add_minutes(const int n)
+		JD& JD::add_minutes(const int n)
 		{
 			double day;
 			_time = std::modf(_time + n / MIN_PER_DAY, &day);
-			_day += static_cast<size_t>(day);
+			_day += static_cast<long_t>(day);
+			if (_time < 0.0) shift_behind();
+			return *this;
 		}
-		void JD::add_seconds(const int n)
+		JD& JD::add_seconds(const int n)
 		{
 			double day;
 			_time = std::modf(_time + n / SEC_PER_DAY, &day);
-			_day += static_cast<size_t>(day);
+			_day += static_cast<long_t>(day);
+			if (_time < 0.0) shift_behind();
+			return *this;
 		}
 
 		JD operator + (const JD& jd, const double dt)
@@ -380,7 +403,7 @@ namespace general
 			auto result{ jd };
 			double day;
 			result._time = std::modf(jd._time + dt, &day);
-			result._day += static_cast<size_t>(day);
+			result._day += static_cast<long long>(day);
 			return result;
 		}
 		JD operator - (const JD& jd, const double dt)
@@ -388,12 +411,13 @@ namespace general
 			auto result{ jd };
 			double day;
 			result._time = std::modf(jd._time - dt, &day);
-			result._day += static_cast<size_t>(day);
+			result._day += static_cast<long long>(day);
 			return result;
 		}
 
 		double operator - (const JD& f, const JD& s)
 		{
+			using long_t = long long;
 			return (f._time - s._time) + (f._day - s._day);
 		}
 

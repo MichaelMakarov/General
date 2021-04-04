@@ -6,25 +6,47 @@ namespace general
 {
 	namespace math
 	{
-        // Degreese to radians conversion
-        inline double deg_to_rad(const double degrees)
+        /// <summary>
+        /// degrees conversion to radians
+        /// </summary>
+        /// <param name="degrees">angle in degrees</param>
+        /// <returns>angle in radians</returns>
+        inline constexpr double deg_to_rad(const double degrees)
         {
             return degrees * PI / 180.0;
         }
-        // Radians to degreese conversion
-        inline double rad_to_deg(const double radians)
+        /// <summary>
+        /// radians conversion to degrees
+        /// </summary>
+        /// <param name="radians">angle in radians</param>
+        /// <returns>angle in degrees</returns>
+        inline constexpr double rad_to_deg(const double radians)
         {
             return radians * 180.0 / PI;
         }
         // Radians to angle seconds conversion
-        inline double rad_to_sec(const double radians)
+        inline constexpr double rad_to_sec(const double radians)
         {
             return rad_to_deg(radians) * SEC_PER_ROUND;
         }
-        // Angle seconds to radians conversion
-        inline double sec_to_rad(const double seconds)
+        /// <summary>
+        /// angular seconds conversion to radians
+        /// </summary>
+        /// <param name="seconds">angular seconds</param>
+        /// <returns>corresponding angle in radians</returns>
+        inline constexpr double sec_to_rad(const double seconds)
         {
             return seconds * RAD_PER_SEC;
+        }
+        /// <summary>
+        /// adjust angle in radians to interval [0; 2 * pi]
+        /// </summary>
+        /// <param name="angle"> - angle in radians</param>
+        /// <returns>angle in radians</returns>
+        inline double rad_to_2pi(const double angle)
+        {
+            if (angle > 0.0) return angle - std::floor(angle / PI2) * PI2;
+            else return angle + std::ceil(-angle / PI2) * PI2;
         }
         // Factorial
         long double factorial(const size_t x);
@@ -47,5 +69,7 @@ namespace general
         // Euler angled calculation using quaternion.
         // Returns (psi, teta, phi) vector.
         Vec3 eulerangles_from_quaternion(const Quaternion& q);
+
+
 	}
 }
