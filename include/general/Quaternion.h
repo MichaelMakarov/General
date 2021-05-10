@@ -1,6 +1,7 @@
 #pragma once
 #include <istream>
 #include <ostream>
+#include "Geometry.h"
 
 namespace general
 {
@@ -9,21 +10,20 @@ namespace general
 		class Quaternion
 		{
 		public:
-			double S, X, Y, Z;
+			double s;
+			Vec3 v;
 
 		public:
-			Quaternion() noexcept : S{ 1 }, X{ 0 }, Y{ 0 }, Z{ 0 } {}
-			Quaternion(const double s, const double x, const double y, const double z) noexcept :
-				S{ s }, X{ x }, Y{ y }, Z{ z }
+			Quaternion() noexcept : s{ 1 }, v{ Vec3(0, 0, 0) } {}
+			Quaternion(const double s0, const double x, const double y, const double z) noexcept :
+				s{ s0 }, v{ Vec3(x, y, z) }
 			{}
-			Quaternion(const Quaternion& q) noexcept : S{ q.S }, X{ q.X }, Y{ q.Y }, Z{ q.Z } {}
-			Quaternion(Quaternion&& q) noexcept : S{ q.S }, X{ q.X }, Y{ q.Y }, Z{ q.Z }
-			{
-				q.S = q.X = q.Y = q.Z = 0;
-			}
+			Quaternion(const double s0, const Vec3& vec) noexcept : s{ s0 }, v{ vec } {}
+			Quaternion(const Quaternion& q) noexcept : s{ q.s }, v{ q.v } {}
+			Quaternion(Quaternion&& q) noexcept : s{ std::move(q.s) }, v{ std::move(q.v) }{}
 			~Quaternion() = default;
 
-			Quaternion& operator = (const Quaternion& q) noexcept;
+			Quaternion& operator = (const Quaternion& q) = default;
 			Quaternion& operator = (Quaternion&& q) noexcept;
 
 			double mod() const;

@@ -4,7 +4,7 @@ namespace general
 {
 	namespace math
 	{
-		MatrixDyn::MatrixDyn(const size_t rows, const size_t cols, const std::initializer_list<double>& list)
+		Matrix::Matrix(const size_t rows, const size_t cols, const std::initializer_list<double>& list)
 		{
 			if (rows * cols == list.size()) {
 				_rows = rows;
@@ -13,7 +13,7 @@ namespace general
 			}
 			throw std::invalid_argument("Invalid initializer list size!");
 		}
-		MatrixDyn::MatrixDyn(const size_t rows, const size_t cols, const std::vector<double>& vec)
+		Matrix::Matrix(const size_t rows, const size_t cols, const std::vector<double>& vec)
 		{
 			if (rows * cols == vec.size()) {
 				_rows = rows;
@@ -22,14 +22,14 @@ namespace general
 			}
 			throw std::invalid_argument("Invalid vector size!");
 		}
-		MatrixDyn::MatrixDyn(MatrixDyn&& m) noexcept
+		Matrix::Matrix(Matrix&& m) noexcept
 		{
 			_data = std::move(m._data);
 			_rows = std::move(m._rows);
 			_cols = std::move(m._cols);
 		}
 
-		MatrixDyn& MatrixDyn::operator = (MatrixDyn&& m) noexcept
+		Matrix& Matrix::operator = (Matrix&& m) noexcept
 		{
 			_data = std::move(m._data);
 			_rows = std::move(m._rows);
@@ -37,21 +37,21 @@ namespace general
 			return *this;
 		}
 
-		VectorDyn MatrixDyn::get_row(const size_t index) const
+		Vector Matrix::get_row(const size_t index) const
 		{
-			auto row{ VectorDyn(_cols) };
+			auto row{ Vector(_cols) };
 			for (size_t i = 0; i < _cols; ++i)
 				row[i] = _data[index * _cols + i];
 			return row;
 		}
-		VectorDyn MatrixDyn::get_column(const size_t index) const
+		Vector Matrix::get_column(const size_t index) const
 		{
-			auto column{ VectorDyn(_rows) };
+			auto column{ Vector(_rows) };
 			for (size_t i = 0; i < _rows; ++i)
 				column[i] = _data[i * _cols + index];
 			return column;
 		}
-		void MatrixDyn::set_row(const size_t index, const VectorDyn& row)
+		void Matrix::set_row(const size_t index, const Vector& row)
 		{
 			if (_cols == row.size()) {
 				for (size_t i = 0; i < _cols; ++i)
@@ -59,7 +59,7 @@ namespace general
 			}
 			throw std::invalid_argument("Invalid row size!");
 		}
-		void MatrixDyn::set_column(const size_t index, const VectorDyn& column)
+		void Matrix::set_column(const size_t index, const Vector& column)
 		{
 			if (_rows == column.size()) {
 				for (size_t i = 0; i < _rows; ++i)
@@ -68,7 +68,7 @@ namespace general
 			throw std::invalid_argument("Invalid column size!");
 		}
 
-		MatrixDyn& MatrixDyn::operator += (const MatrixDyn& m)
+		Matrix& Matrix::operator += (const Matrix& m)
 		{
 			if (_rows == m._rows && _cols == m._cols) {
 				for (size_t i = 0; i < _data.size(); ++i)
@@ -77,7 +77,7 @@ namespace general
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		MatrixDyn& MatrixDyn::operator -= (const MatrixDyn& m)
+		Matrix& Matrix::operator -= (const Matrix& m)
 		{
 			if (_rows == m._rows && _cols == m._cols) {
 				for (size_t i = 0; i < _data.size(); ++i)
@@ -86,43 +86,43 @@ namespace general
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		MatrixDyn& MatrixDyn::operator *= (const double v)
+		Matrix& Matrix::operator *= (const double v)
 		{
 			for (size_t i = 0; i < _data.size(); ++i)
 				_data[i] *= v;;
 			return *this;
 		}
-		MatrixDyn& MatrixDyn::operator /= (const double v)
+		Matrix& Matrix::operator /= (const double v)
 		{
 			for (size_t i = 0; i < _data.size(); ++i)
 				_data[i] /= v;;
 			return *this;
 		}
 
-		MatrixDyn operator + (const MatrixDyn& f, const MatrixDyn& s)
+		Matrix operator + (const Matrix& f, const Matrix& s)
 		{
 			if (f._rows == s._rows && f._cols == s._cols) {
-				auto m{ MatrixDyn(f._rows, f._cols) };
+				auto m{ Matrix(f._rows, f._cols) };
 				for (size_t i = 0; i < f._data.size(); ++i)
 					m._data[i] = f._data[i] + s._data[i];
 				return m;
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		MatrixDyn operator - (const MatrixDyn& f, const MatrixDyn& s)
+		Matrix operator - (const Matrix& f, const Matrix& s)
 		{
 			if (f._rows == s._rows && f._cols == s._cols) {
-				auto m{ MatrixDyn(f._rows, f._cols) };
+				auto m{ Matrix(f._rows, f._cols) };
 				for (size_t i = 0; i < f._data.size(); ++i)
 					m._data[i] = f._data[i] - s._data[i];
 				return m;
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		MatrixDyn operator * (const MatrixDyn & f, const MatrixDyn & s)
+		Matrix operator * (const Matrix & f, const Matrix & s)
 		{
 			if (f._cols == s._rows) {
-				auto result{ MatrixDyn(f._rows, s._cols) };
+				auto result{ Matrix(f._rows, s._cols) };
 				for (size_t m = 0; m < f._rows; ++m)
 					for (size_t k = 0; k < f._cols; ++k)
 						for (size_t n = 0; n < s._cols; ++n)
@@ -131,39 +131,39 @@ namespace general
 			}
 			throw std::invalid_argument("Inconsistent matrices!");
 		}
-		VectorDyn operator * (const MatrixDyn& matrix, const VectorDyn& vec)
+		Vector operator * (const Matrix& matrix, const Vector& vec)
 		{
 			if (matrix._cols != vec.size())
 				throw std::invalid_argument("Incompatible matrix and vector!");
-			auto result{ VectorDyn(matrix._rows) };
+			auto result{ Vector(matrix._rows) };
 			for (size_t m = 0; m < matrix._rows; ++m)
 				for (size_t n = 0; n < matrix._cols; ++n)
 					result[m] += matrix(m, n) * vec[n];
 			return result;
 		}
-		MatrixDyn operator / (const MatrixDyn& m, const double v)
+		Matrix operator / (const Matrix& m, const double v)
 		{
-			auto result{ MatrixDyn(m) };
+			auto result{ Matrix(m) };
 			for (size_t i = 0; i < result._data.size(); ++i)
 				result._data[i] /= v;
 			return result;
 		}
-		MatrixDyn operator * (const MatrixDyn& m, const double v)
+		Matrix operator * (const Matrix& m, const double v)
 		{
-			auto result{ MatrixDyn(m) };
+			auto result{ Matrix(m) };
 			for (size_t i = 0; i < result._data.size(); ++i)
 				result._data[i] *= v;
 			return result;
 		}
-		MatrixDyn operator * (const double v, const MatrixDyn& m)
+		Matrix operator * (const double v, const Matrix& m)
 		{
-			auto result{ MatrixDyn(m) };
+			auto result{ Matrix(m) };
 			for (size_t i = 0; i < result._data.size(); ++i)
 				result._data[i] *= v;
 			return result;
 		}
 
-		std::ostream& operator << (std::ostream& os, const MatrixDyn& matrix)
+		std::ostream& operator << (std::ostream& os, const Matrix& matrix)
 		{
 			os << "{ ";
 			for (size_t m = 0; m < matrix._rows; ++m) {
@@ -175,30 +175,30 @@ namespace general
 			os << "}";
 			return os;
 		}
-		std::istream& operator << (std::istream& is, MatrixDyn& m) 
+		std::istream& operator << (std::istream& is, Matrix& m) 
 		{
 			for (size_t i = 0; i < m._data.size(); ++i)
 				is >> m._data[i];
 			return is;
 		}
 
-		static MatrixDyn identity(const size_t size)
+		static Matrix identity(const size_t size)
 		{
-			auto m{ MatrixDyn(size, size) };
+			auto m{ Matrix(size, size) };
 			for (size_t i = 0; i < size; ++i)
 				m(i, i) = 1.0;
 			return m;
 		}
 
-		MatrixDyn transpose(const MatrixDyn& matrix)
+		Matrix transpose(const Matrix& matrix)
 		{
-			auto result{ MatrixDyn(matrix._cols, matrix._rows) };
+			auto result{ Matrix(matrix._cols, matrix._rows) };
 			for (size_t m = 0; m < matrix._rows; ++m)
 				for (size_t n = 0; n < matrix._cols; ++n)
 					result(n, m) = matrix(m, n);
 			return result;
 		}
-		MatrixDyn inverse(const MatrixDyn& matrix)
+		Matrix inverse(const Matrix& matrix)
 		{
 			if (matrix._rows != matrix._cols)
 				throw std::invalid_argument("Matrix is not square!");
@@ -224,11 +224,11 @@ namespace general
 			}
 			return result;
 		}
-		void LU(const MatrixDyn& A, MatrixDyn& L, MatrixDyn& U)
+		void LU(const Matrix& A, Matrix& L, Matrix& U)
 		{
 			if (A._rows != A._cols)
 				throw std::invalid_argument("Matrix is not square!");
-			U = L = MatrixDyn(A._rows, A._cols);
+			U = L = Matrix(A._rows, A._cols);
 			double sum;
 			for (size_t m = 0; m < A._rows; ++m) {
 				for (size_t n = 0; n < A._cols; ++n) {
@@ -247,12 +247,12 @@ namespace general
 				L(m, m) = 1.0;
 			}
 		}
-		void PLU(const MatrixDyn& A, MatrixDyn& L, MatrixDyn& U, std::vector<size_t>& P, size_t& k)
+		void PLU(const Matrix& A, Matrix& L, Matrix& U, std::vector<size_t>& P, size_t& k)
 		{
 			if (A._rows != A._cols)
 				throw std::invalid_argument("Matrix is not square!");
 			k = 0;
-			L = U = MatrixDyn(A._rows, A._cols);
+			L = U = Matrix(A._rows, A._cols);
 			P = std::vector<size_t>(A._rows);
 			double buf, absv;
 			size_t imax;
@@ -279,12 +279,12 @@ namespace general
 				}
 			}
 		}
-		void QR(const MatrixDyn& A, MatrixDyn& Q, MatrixDyn& R)
+		void QR(const Matrix& A, Matrix& Q, Matrix& R)
 		{
 			if (A._rows != A._cols)
 				throw std::invalid_argument("Matrix is not square!");
-			Q = MatrixDyn(A._rows, A._cols);
-			auto vecs = std::vector<VectorDyn>(A._cols);
+			Q = Matrix(A._rows, A._cols);
+			auto vecs = std::vector<Vector>(A._cols);
 			for (size_t n = 0; n < A._cols; ++n) {
 				auto vec = vecs[n] = A.get_column(n);
 				// Gramme-Shmidte orthogonalization
@@ -294,14 +294,14 @@ namespace general
 			}
 			R = transpose(Q) * A;
 		}
-		VectorDyn solve(const MatrixDyn& A, const VectorDyn& B)
+		Vector solve(const Matrix& A, const Vector& B)
 		{
 			if (A._rows != A._cols)
 				throw std::invalid_argument("Matrix is not square!");
 			if (A._rows != B.size())
 				throw std::invalid_argument("Incompatible matrix and vector!");
 			double div{ 1 }, pivot;
-			auto D{ MatrixDyn(A._rows, A._cols + 1) };
+			auto D{ Matrix(A._rows, A._cols + 1) };
 			for (size_t m = 0; m < A._rows; ++m) {
 				for (size_t n = 0; n < A._cols; ++n)
 					D(m, n) = A(m, n);
@@ -326,7 +326,7 @@ namespace general
 			}
 			return D.get_column(A._cols) / D(0, 0);
 		}
-		MatrixDyn AxD(const MatrixDyn& A, const MatrixDyn& D)
+		Matrix AxD(const Matrix& A, const Matrix& D)
 		{
 			if (A._cols != D._rows)
 				throw std::invalid_argument("Incompatible matrices!");
@@ -336,7 +336,7 @@ namespace general
 					matrix(m, n) *= D(n, n);
 			return matrix;
 		}
-		MatrixDyn DxA(const MatrixDyn& D, const MatrixDyn& A)
+		Matrix DxA(const Matrix& D, const Matrix& A)
 		{
 			if (A._cols != D._rows)
 				throw std::invalid_argument("Incompatible matrices!");
@@ -346,12 +346,12 @@ namespace general
 					matrix(m, n) *= D(m, m);
 			return matrix;
 		}
-		void SVD(const MatrixDyn& A, MatrixDyn& U, MatrixDyn& S, MatrixDyn& V)
+		void SVD(const Matrix& A, Matrix& U, Matrix& s, Matrix& V)
 		{
-			V = MatrixDyn(A._cols, A._cols);
-			auto Sinv = S = MatrixDyn(A._cols, A._cols);
+			V = Matrix(A._cols, A._cols);
+			auto Sinv = s = Matrix(A._cols, A._cols);
 			auto M = transpose(A) * A;
-			VectorDyn v(M._rows);
+			Vector v(M._rows);
 			double curr, prev, eps = 1e-16;
 			for (size_t i = 0; i < M._rows; ++i) {
 				curr = 2.0;
@@ -366,12 +366,12 @@ namespace general
 				// filling the MatrixFix of the eigen vectors
 				V.set_row(i, v);
 				// filling the diagonal MatrixFix
-				S(i, i) = std::sqrt(curr);
+				s(i, i) = std::sqrt(curr);
 				for (size_t m = 0; m < M._rows; ++m)
 					for (size_t n = 0; n < M._cols; ++n)
 						M(m, n) -= curr * v[m] * v[n];
 			}
-			for (size_t i = 0; i < S._rows; ++i) Sinv(i, i) = 1 / S(i, i);
+			for (size_t i = 0; i < s._rows; ++i) Sinv(i, i) = 1 / s(i, i);
 			U = A * transpose(V) * Sinv;
 		}
 	}

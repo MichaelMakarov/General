@@ -5,13 +5,13 @@ namespace general
 {
 	namespace math
 	{
-		template<size_t M, size_t N> requires NotZero<M> && NotZero<N>
-		class MatrixFix : public std::array<double, M * N>
+		template<size_t M, size_t N> 
+		class MatrixMxN : public std::array<double, M * N>
 		{
 			static_assert(M * N > size_t(0), "MatrixFix size is equal zero!");
 		public:
-			MatrixFix() : std::array<double, M * N>() {}
-			MatrixFix(const std::initializer_list<double>& values)
+			MatrixMxN() : std::array<double, M * N>() {}
+			MatrixMxN(const std::initializer_list<double>& values)
 			{
 				if (values.size() != M * N) 
 					throw std::invalid_argument("Invalid args number!");
@@ -19,23 +19,23 @@ namespace general
 				for (const auto& v : values)
 					this->operator[](index++) = v;
 			}
-			MatrixFix(const double(&values)[M][N])
+			MatrixMxN(const double(&values)[M][N])
 			{
 				for (size_t m = 0; m < M; ++m)
 					std::memcpy(&this->data()[m * N], values[m], N * sizeof(double));
 			}
-			MatrixFix(const MatrixFix& MatrixFix) noexcept : std::array<double, M * N>(MatrixFix) {};
-			MatrixFix(MatrixFix&& MatrixFix) noexcept : std::array<double, M * N>(MatrixFix) {}
-			~MatrixFix() noexcept = default;
+			MatrixMxN(const MatrixMxN& MatrixMxN) noexcept : std::array<double, M * N>(MatrixMxN) {};
+			MatrixMxN(MatrixMxN&& MatrixMxN) noexcept : std::array<double, M * N>(MatrixMxN) {}
+			~MatrixMxN() noexcept = default;
 
-			MatrixFix& operator = (const MatrixFix& MatrixFix) noexcept
+			MatrixMxN& operator = (const MatrixMxN& MatrixMxN) noexcept
 			{
-				std::memcpy(this->data(), MatrixFix.data(), MatrixFix.size() * sizeof(double));
+				std::memcpy(this->data(), MatrixMxN.data(), MatrixMxN.size() * sizeof(double));
 				return *this;
 			}
-			MatrixFix& operator = (MatrixFix&& MatrixFix) noexcept
+			MatrixMxN& operator = (MatrixMxN&& MatrixMxN) noexcept
 			{
-				this->data() = std::move(MatrixFix.data());
+				this->data() = std::move(MatrixMxN.data());
 				return *this;
 			}
 
@@ -45,7 +45,7 @@ namespace general
 			double det() const
 			{
 				double det{ 1 };
-				MatrixFix<M, N> L, U;
+				MatrixMxN<M, N> L, U;
 				std::array<size_t, M> P;
 				size_t k;
 				try {
@@ -61,74 +61,74 @@ namespace general
 			const double& operator () (const size_t m, const size_t n) const { return this->operator[](m * N + n); }
 			double& operator () (const size_t m, const size_t n) { return this->operator[](m* N + n); }
 			
-			VectorFix<N> get_row(size_t index) const
+			Vec<N> get_row(size_t index) const
 			{
-				VectorFix<N> row;
+				Vec<N> row;
 				for (size_t i = 0; i < N; ++i)
 					row[i] = this->operator()(index, i);
 				return row;
 			}
-			VectorFix<M> get_column(size_t index) const
+			Vec<M> get_column(size_t index) const
 			{
-				VectorFix<M> column;
+				Vec<M> column;
 				for (size_t i = 0; i < M; ++i)
 					column[i] = this->operator()(i, index);
 				return column;
 			}
-			void set_row(size_t index, const VectorFix<N>& vector)
+			void set_row(size_t index, const Vec<N>& vector)
 			{
 				for (size_t i = 0; i < N; ++i)
 					this->operator()(index, i) = vector[i];
 			}
-			void set_column(size_t index, const VectorFix<M>& vector)
+			void set_column(size_t index, const Vec<M>& vector)
 			{
 				for (size_t i = 0; i < M; ++i)
 					this->operator()(i, index) = vector[i];
 			}
 
-			MatrixFix& operator += (const MatrixFix& matrix)
+			MatrixMxN& operator += (const MatrixMxN& matrix)
 			{
 				for (size_t i = 0; i < this->size(); ++i)
 					this->operator[](i) += matrix[i];
 				return *this;
 			}
-			MatrixFix& operator -= (const MatrixFix& matrix)
+			MatrixMxN& operator -= (const MatrixMxN& matrix)
 			{
 				for (size_t i = 0; i < this->size(); ++i)
 					this->operator[](i) -= matrix[i];
 				return *this;
 			}
-			MatrixFix& operator *= (const double value)
+			MatrixMxN& operator *= (const double value)
 			{
 				for (size_t i = 0; i < this->size(); ++i)
 					this->operator[](i) *= value;
 				return *this;
 			}
-			MatrixFix& operator /= (const double value)
+			MatrixMxN& operator /= (const double value)
 			{
 				for (size_t i = 0; i < this->size(); ++i)
 					this->operator[](i) /= value;
 				return *this;
 			}
 
-			friend MatrixFix<M, N> operator + (const MatrixFix<M, N>& first, const MatrixFix<M, N>& second)
+			friend MatrixMxN<M, N> operator + (const MatrixMxN<M, N>& first, const MatrixMxN<M, N>& second)
 			{
-				MatrixFix<M, N> result;
+				MatrixMxN<M, N> result;
 				for (size_t i = 0; i < first.size(); ++i)
 					result[i] = first[i] + second[i];
 				return result;
 			}
-			friend MatrixFix<M, N> operator - (const MatrixFix<M, N>& first, const MatrixFix<M, N>& second)
+			friend MatrixMxN<M, N> operator - (const MatrixMxN<M, N>& first, const MatrixMxN<M, N>& second)
 			{
-				MatrixFix<M, N> result;
+				MatrixMxN<M, N> result;
 				for (size_t i = 0; i < first.size(); ++i)
 					result[i] = first[i] - second[i];
 				return result;
 			}
 			template<size_t K>
-			friend MatrixFix<M, K> operator * (const MatrixFix<M, N>& first, const MatrixFix<N, K>& second)
+			friend MatrixMxN<M, K> operator * (const MatrixMxN<M, N>& first, const MatrixMxN<N, K>& second)
 			{
-				MatrixFix<M, K> result;
+				MatrixMxN<M, K> result;
 				for (size_t m = 0; m < M; ++m) {
 					for (size_t n = 0; n < N; ++n) {
 						for (size_t k = 0; k < K; ++k)
@@ -137,76 +137,72 @@ namespace general
 				}
 				return result;
 			}
-			friend VectorFix<M> operator * (const MatrixFix<M, N>& matrix, const VectorFix<N>& vector)
+			friend Vec<M> operator * (const MatrixMxN<M, N>& matrix, const Vec<N>& vector)
 			{
-				VectorFix<M> result;
+				Vec<M> result;
 				for (size_t m = 0; m < M; ++m)
 					for (size_t n = 0; n < N; ++n)
 						result[m] += matrix[m * N + n] * vector[n];
 				return result;
 			}
-			friend MatrixFix<M, N> operator * (const MatrixFix<M, N>& matrix, const double value)
+			friend MatrixMxN<M, N> operator * (const MatrixMxN<M, N>& matrix, const double value)
 			{
-				MatrixFix<M, N> result;
+				MatrixMxN<M, N> result;
 				for (size_t i = 0; i < result.size(); ++i)
 					result[i] = matrix[i] * value;
 				return result;
 			}
-			friend MatrixFix<M, N> operator * (const double value, const MatrixFix<M, N>& matrix)
+			friend MatrixMxN<M, N> operator * (const double value, const MatrixMxN<M, N>& matrix)
 			{
-				MatrixFix<M, N> result;
+				MatrixMxN<M, N> result;
 				for (size_t i = 0; i < result.size(); ++i)
 					result[i] = matrix[i] * value;
 				return result;
 			}
-			friend MatrixFix<M, N> operator / (const MatrixFix<M, N>& matrix, const double value)
+			friend MatrixMxN<M, N> operator / (const MatrixMxN<M, N>& matrix, const double value)
 			{
-				MatrixFix<M, N> result;
-				for (size_t i = 0; i < result.size(); ++i)
-					result[i] = matrix[i] / value;
+				MatrixMxN<M, N> result;
+				for (size_t i = 0; i < result.size(); ++i) result[i] = matrix[i] / value;
 				return result;
 			}
-			friend std::ostream& operator <<(std::ostream& os, const MatrixFix<M, N>& matrix)
+			friend std::ostream& operator <<(std::ostream& os, const MatrixMxN<M, N>& matrix)
 			{
 				os << "{ ";
-				for (size_t m = 0; m < M; ++m)
-				{
+				for (size_t m = 0; m < M; ++m) {
 					os << "{ ";
-					for (size_t n = 0; n < N; ++n)
-						os << matrix[m * N + n] << "; ";
+					for (size_t n = 0; n < N; ++n) os << matrix[m * N + n] << "; ";
 					os << "} ";
 				}
 				os << "}";
 				return os;
 			}
-			friend std::istream& operator >>(std::istream& is, MatrixFix& matrix)
+			friend std::istream& operator >>(std::istream& is, MatrixMxN& matrix)
 			{
-				for (size_t i = 0; i < matrix.size(); ++i)
-					is >> matrix[i];
+				for (size_t i = 0; i < matrix.size(); ++i) is >> matrix[i];
 				return is;
 			}
 
-			static MatrixFix<M, N> identity()
+			static MatrixMxN<M, N> identity()
 			{
 				static_assert(M == N, "MatrixFix is not square!");
-				MatrixFix<M, N> result;
-				for (size_t i = 0; i < M; ++i)
-					result[i * N + i] = 1.0;
+				MatrixMxN<M, N> result;
+				for (size_t i = 0; i < M; ++i) result[i * N + i] = 1.0;
 				return result;
 			}
 		};
 
 		template<size_t rows, size_t cols>
-		MatrixFix<cols, rows> transpose(const MatrixFix<rows, cols>& matrix)
+		MatrixMxN<cols, rows> transpose(const MatrixMxN<rows, cols>& matrix)
 		{
-			MatrixFix<cols, rows> result;
-			for (size_t m = 0; m < rows; ++m)
+			MatrixMxN<cols, rows> result;
+			for (size_t m = 0; m < rows; ++m) {
 				for (size_t n = 0; n < cols; ++n)
 					result(n, m) = matrix(m, n);
+			}
 			return result;
 		}
 		template<size_t dim>
-		MatrixFix<dim, dim> inverse(const MatrixFix<dim, dim>& matrix)
+		MatrixMxN<dim, dim> inverse(const MatrixMxN<dim, dim>& matrix)
 		{
 			auto result{ matrix };
 			double pivot;// , det{ 1 };
@@ -225,27 +221,24 @@ namespace general
 						}
 					}
 				}
-				for (size_t n = 0; n < dim; ++n)
-					result(k, n) /= pivot;
+				for (size_t n = 0; n < dim; ++n) result(k, n) /= pivot;
 				result(k, k) = 1 / pivot;
 			}
 			return result;
 		}
 		template<size_t dim>
-		void LU(const MatrixFix<dim, dim>& A, MatrixFix<dim, dim>& L, MatrixFix<dim, dim>& U)
+		void LU(const MatrixMxN<dim, dim>& A, MatrixMxN<dim, dim>& L, MatrixMxN<dim, dim>& U)
 		{
 			double sum;
 			for (size_t m = 0; m < dim; ++m) {
 				for (size_t n = 0; n < dim; ++n) {
 					sum = 0;
 					if (m <= n) {
-						for (size_t i = 0; i < dim; ++i)
-							sum += L(m, i) * U(i, n);
+						for (size_t i = 0; i < dim; ++i) sum += L(m, i) * U(i, n);
 						U(m, n) = A(m, n) - sum;
 					}
 					else {
-						for (size_t i = 0; i < dim; ++i)
-							sum += L(m, i) * U(i, n);
+						for (size_t i = 0; i < dim; ++i) sum += L(m, i) * U(i, n);
 						L(m, n) = (A(m, n) - sum) / U(n, n);
 					}
 				}
@@ -253,7 +246,7 @@ namespace general
 			}
 		}
 		template<size_t dim>
-		void PLU(const MatrixFix<dim, dim>& A, MatrixFix<dim, dim>& L, MatrixFix<dim, dim>& U, std::array<size_t, dim>& P, size_t& k)
+		void PLU(const MatrixMxN<dim, dim>& A, MatrixMxN<dim, dim>& L, MatrixMxN<dim, dim>& U, std::array<size_t, dim>& P, size_t& k)
 		{
 			k = 0;
 			double buf, absv;
@@ -282,9 +275,9 @@ namespace general
 			}
 		}
 		template<size_t dim>
-		void QR(const MatrixFix<dim, dim>& A, MatrixFix<dim, dim>& Q, MatrixFix<dim, dim>& R)
+		void QR(const MatrixMxN<dim, dim>& A, MatrixMxN<dim, dim>& Q, MatrixMxN<dim, dim>& R)
 		{
-			std::array<VectorFix<dim>, dim> vecs;
+			std::array<Vec<dim>, dim> vecs;
 			for (size_t n = 0; n < dim; ++n) {
 				auto vec = vecs[n] = A.get_column(n);
 				// Gramme-Shmidte orthogonalization
@@ -295,10 +288,10 @@ namespace general
 			R = transpose(Q) * A;
 		}
 		template<size_t dim>
-		VectorFix<dim> solve(const MatrixFix<dim, dim>& A, const VectorFix<dim>& B)
+		Vec<dim> solve(const MatrixMxN<dim, dim>& A, const Vec<dim>& B)
 		{
 			double div{ 1 }, pivot, buf;
-			MatrixFix<dim, dim + 1> D;
+			MatrixMxN<dim, dim + 1> D;
 			for (size_t m = 0; m < dim; ++m) {
 				for (size_t n = 0; n < dim; ++n)
 					D(m, n) = A(m, n);
@@ -324,7 +317,7 @@ namespace general
 			return D.get_column(dim) / D[0];
 		}
 		template<size_t rows, size_t cols>
-		MatrixFix<rows, cols> AxD(const MatrixFix<rows, cols>& A, const MatrixFix<cols, cols>& D)
+		MatrixMxN<rows, cols> AxD(const MatrixMxN<rows, cols>& A, const MatrixMxN<cols, cols>& D)
 		{
 			auto matrix{ A };
 			for (size_t m = 0; m < rows; ++m)
@@ -333,7 +326,7 @@ namespace general
 			return matrix;
 		}
 		template<size_t rows, size_t cols>
-		MatrixFix<rows, cols> DxA(const MatrixFix<rows, cols>& D, const MatrixFix<rows, cols>& A)
+		MatrixMxN<rows, cols> DxA(const MatrixMxN<rows, cols>& D, const MatrixMxN<rows, cols>& A)
 		{
 			auto matrix{ A };
 			for (size_t m = 0; m < rows; ++m)
@@ -342,11 +335,11 @@ namespace general
 			return matrix;
 		}
 		template<size_t rows, size_t cols, size_t count = rows>
-		void SVD(const MatrixFix<rows, cols>& A, MatrixFix<rows, count>& U, MatrixFix<count, count>& S, MatrixFix<count, cols>& V)
+		void SVD(const MatrixMxN<rows, cols>& A, MatrixMxN<rows, count>& U, MatrixMxN<count, count>& S, MatrixMxN<count, cols>& V)
 		{
-			MatrixFix<cols, cols> M = transpose(A) * A;
-			VectorFix<cols> v;
-			MatrixFix<count, count> Sinv;
+			MatrixMxN<cols, cols> M = transpose(A) * A;
+			Vec<cols> v;
+			MatrixMxN<count, count> Sinv;
 			double curr, prev, eps = 1e-16;
 			for (size_t i = 0; i < count; ++i) {
 				curr = 2.0;
@@ -371,37 +364,37 @@ namespace general
 		}
 
 
-		class MatrixDyn
+		class Matrix
 		{
 		private:
 			std::vector<double> _data;
 			size_t _rows, _cols;
 
 		public:
-			MatrixDyn() noexcept = default;
-			MatrixDyn(const size_t rows, const size_t cols) : 
+			Matrix() noexcept = default;
+			Matrix(const size_t rows, const size_t cols) : 
 				_rows{ rows }, _cols{ cols }, _data{ std::vector<double>(rows * cols) } 
 			{}
-			MatrixDyn(const size_t rows, const size_t cols, const std::initializer_list<double>& list);
-			template<size_t rows, size_t cols> MatrixDyn(const double(&arr)[rows][cols]) : 
+			Matrix(const size_t rows, const size_t cols, const std::initializer_list<double>& list);
+			template<size_t rows, size_t cols> Matrix(const double(&arr)[rows][cols]) : 
 				_rows{ rows }, _cols{ cols }, _data{ std::vector<double>(rows * cols) }
 			{
 				for (size_t m = 0; m < rows; ++m) {
 					std::memcpy(_data.data() + m * cols, arr[m], sizeof(double)* cols);
 				}
 			}
-			MatrixDyn(const size_t rows, const size_t cols, const std::vector<double>& vec);
-			template<size_t rows, size_t cols> MatrixDyn(const MatrixFix<rows, cols>& m) : 
+			Matrix(const size_t rows, const size_t cols, const std::vector<double>& vec);
+			template<size_t rows, size_t cols> Matrix(const MatrixMxN<rows, cols>& m) : 
 				_rows{ rows }, _cols{ cols }, _data{ std::vector<double>(rows * cols) }
 			{
 				std::memcpy(_data.data(), m.data(), sizeof(double) * rows * cols);
 			}
-			MatrixDyn(const MatrixDyn& m) noexcept = default;
-			MatrixDyn(MatrixDyn&& m) noexcept;
-			~MatrixDyn() = default;
+			Matrix(const Matrix& m) noexcept = default;
+			Matrix(Matrix&& m) noexcept;
+			~Matrix() = default;
 
-			MatrixDyn& operator = (const MatrixDyn& m) = default;
-			MatrixDyn& operator = (MatrixDyn&& m) noexcept;
+			Matrix& operator = (const Matrix& m) = default;
+			Matrix& operator = (Matrix&& m) noexcept;
 
 			size_t rows() const { return _rows; }
 			size_t columns() const { return _cols; }
@@ -409,38 +402,38 @@ namespace general
 			const double& operator () (const size_t m, const size_t n) const { return _data[m * _cols + n]; }
 			double& operator () (const size_t m, const size_t n) { return _data[m * _cols + n]; }
 
-			VectorDyn get_row(const size_t index) const;
-			VectorDyn get_column(const size_t index) const;
-			void set_row(const size_t index, const VectorDyn& row);
-			void set_column(const size_t index, const VectorDyn& column);
+			Vector get_row(const size_t index) const;
+			Vector get_column(const size_t index) const;
+			void set_row(const size_t index, const Vector& row);
+			void set_column(const size_t index, const Vector& column);
 
-			MatrixDyn& operator += (const MatrixDyn& m);
-			MatrixDyn& operator -= (const MatrixDyn& m);
-			MatrixDyn& operator *= (const double v);
-			MatrixDyn& operator /= (const double v);
+			Matrix& operator += (const Matrix& m);
+			Matrix& operator -= (const Matrix& m);
+			Matrix& operator *= (const double v);
+			Matrix& operator /= (const double v);
 
-			friend MatrixDyn operator + (const MatrixDyn& f, const MatrixDyn& s);
-			friend MatrixDyn operator - (const MatrixDyn& f, const MatrixDyn& s);
-			friend MatrixDyn operator * (const MatrixDyn& f, const MatrixDyn& s);
-			friend VectorDyn operator * (const MatrixDyn& m, const VectorDyn& v);
-			friend MatrixDyn operator / (const MatrixDyn& m, const double s);
-			friend MatrixDyn operator * (const MatrixDyn& m, const double v);
-			friend MatrixDyn operator * (const double v, const MatrixDyn& m);
+			friend Matrix operator + (const Matrix& f, const Matrix& s);
+			friend Matrix operator - (const Matrix& f, const Matrix& s);
+			friend Matrix operator * (const Matrix& f, const Matrix& s);
+			friend Vector operator * (const Matrix& m, const Vector& v);
+			friend Matrix operator / (const Matrix& m, const double s);
+			friend Matrix operator * (const Matrix& m, const double v);
+			friend Matrix operator * (const double v, const Matrix& m);
 
-			friend std::ostream& operator << (std::ostream& os, const MatrixDyn& m);
-			friend std::istream& operator << (std::istream& is, MatrixDyn& m);
+			friend std::ostream& operator << (std::ostream& os, const Matrix& m);
+			friend std::istream& operator << (std::istream& is, Matrix& m);
 
-			static MatrixDyn identity(const size_t size);
+			static Matrix identity(const size_t size);
 
-			friend MatrixDyn transpose(const MatrixDyn& matrix);
-			friend MatrixDyn inverse(const MatrixDyn& matrix);
-			friend void LU(const MatrixDyn& A, MatrixDyn& L, MatrixDyn& U);
-			friend void PLU(const MatrixDyn& A, MatrixDyn& L, MatrixDyn& U, std::vector<size_t>& P, size_t& k);
-			friend void QR(const MatrixDyn& A, MatrixDyn& Q, MatrixDyn& R);
-			friend VectorDyn solve(const MatrixDyn& A, const VectorDyn& B);
-			friend MatrixDyn AxD(const MatrixDyn& A, const MatrixDyn& D);
-			friend MatrixDyn DxA(const MatrixDyn& D, const MatrixDyn& A);
-			friend void SVD(const MatrixDyn& A, MatrixDyn& U, MatrixDyn& S, MatrixDyn& V);
+			friend Matrix transpose(const Matrix& matrix);
+			friend Matrix inverse(const Matrix& matrix);
+			friend void LU(const Matrix& A, Matrix& L, Matrix& U);
+			friend void PLU(const Matrix& A, Matrix& L, Matrix& U, std::vector<size_t>& P, size_t& k);
+			friend void QR(const Matrix& A, Matrix& Q, Matrix& R);
+			friend Vector solve(const Matrix& A, const Vector& B);
+			friend Matrix AxD(const Matrix& A, const Matrix& D);
+			friend Matrix DxA(const Matrix& D, const Matrix& A);
+			friend void SVD(const Matrix& A, Matrix& U, Matrix& S, Matrix& V);
 		};
 	}
 }

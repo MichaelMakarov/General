@@ -1,11 +1,20 @@
+#pragma once
 #include "GeneralConstants.h"
 #include "Quaternion.h"
-#include "Matrix3x3.h"
 
 namespace general
 {
 	namespace math
 	{
+        /// <summary>
+        /// day part conversion to seconds
+        /// </summary>
+        /// <param name="t">a part of a day</param>
+        /// <returns>seconds</returns>
+        inline constexpr double daypart_to_sec(const double t)
+        {
+            return t * time::SEC_PER_DAY;
+        }
         /// <summary>
         /// degrees conversion to radians
         /// </summary>

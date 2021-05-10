@@ -213,7 +213,7 @@ namespace general
 			return f._date == s._date && f._time == s._time;
 		}
 
-		bool try_parse(const std::string& str, DateTime& dt, const std::string& format)
+		DateTime datetime_from_str(const std::string& str, const std::string& format)
 		{
 			char separators[6]{ 0 };
 			auto get_index = [](const char symbol) {
@@ -236,7 +236,8 @@ namespace general
 				if (value == 7) separators[index++] = c;
 				else indices[index] = value;
 			}
-			if (index < 3) return false;
+			if (index < 3) 
+				throw std::invalid_argument("Datetime " + str + " does not correspond format " + format);
 			std::string buf;
 			index = 0;
 			for (const char& c : str) {
@@ -249,18 +250,15 @@ namespace general
 			}
 			if (buf.size() != 0) data[indices[index]] = std::atoi(buf.c_str()); 
 			if (indices[index] == 6) value = buf.size();
-			try {
-				dt = DateTime(
-					data[0],
-					static_cast<unsigned short>(data[1]),
-					static_cast<unsigned short>(data[2]),
-					static_cast<unsigned short>(data[3]),
-					static_cast<unsigned short>(data[4]),
-					static_cast<unsigned short>(data[5]),
-					static_cast<unsigned short>(data[6] * std::pow(10, 3 - static_cast<double>(value)))
-				);
-			} catch (std::exception) { return false; }
-			return true;
+			return DateTime(
+				data[0],
+				static_cast<unsigned short>(data[1]),
+				static_cast<unsigned short>(data[2]),
+				static_cast<unsigned short>(data[3]),
+				static_cast<unsigned short>(data[4]),
+				static_cast<unsigned short>(data[5]),
+				static_cast<unsigned short>(data[6] * std::pow(10, 3 - static_cast<double>(value)))
+			);
 		}
 
 		DateTime DateTime::now()
@@ -355,7 +353,7 @@ namespace general
 		JD& JD::operator += (const double dt)
 		{
 			double day;
-			_time = std::modf(_time + dt, &day);
+			_time = std::modf(_time + dt / SEC_PER_DAY, &day);
 			_day += static_cast<long_t>(day);
 			return *this;
 		}
@@ -363,7 +361,7 @@ namespace general
 		JD& JD::operator -= (const double dt)
 		{
 			double day;
-			_time = std::modf(_time - dt, &day);
+			_time = std::modf(_time - dt / SEC_PER_DAY, &day);
 			_day += static_cast<long_t>(day);
 			return *this;
 		}
@@ -402,7 +400,7 @@ namespace general
 		{
 			auto result{ jd };
 			double day;
-			result._time = std::modf(jd._time + dt, &day);
+			result._time = std::modf(jd._time + dt / SEC_PER_DAY, &day);
 			result._day += static_cast<long long>(day);
 			return result;
 		}
@@ -410,7 +408,7 @@ namespace general
 		{
 			auto result{ jd };
 			double day;
-			result._time = std::modf(jd._time - dt, &day);
+			result._time = std::modf(jd._time - dt / SEC_PER_DAY, &day);
 			result._day += static_cast<long long>(day);
 			return result;
 		}
@@ -466,5 +464,18 @@ namespace general
 			_time = std::move(dt._time);
 			return *this;
 		}
-}
+
+		void Stopwatch::start()
+		{
+			_finish = _start = std::chrono::high_resolution_clock::now();
+		}
+		void Stopwatch::finish()
+		{
+			_finish = std::chrono::high_resolution_clock::now();
+		}
+		double Stopwatch::duration() const
+		{
+			return std::chrono::duration<double, std::nano>(_finish - _start).count() * 1e-9;
+		}
+	}
 }

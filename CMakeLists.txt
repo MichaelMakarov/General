@@ -14,10 +14,11 @@ add_library(
 	src/Geometry.cpp
 	src/Times.cpp
 	src/Mathematics.cpp
-	
-	src/Matrix3x3.cpp  
+	  
 	src/Quaternion.cpp
-  "src/Vector.cpp" "src/Matrix.cpp" "src/Polynomial.cpp")
+	src/Vector.cpp 
+	src/Matrix.cpp
+	src/Polynomial.cpp)
 
 add_executable(
 	TestGeneral

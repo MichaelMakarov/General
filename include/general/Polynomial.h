@@ -56,7 +56,7 @@ namespace general
 		/// <param name="Y"> - a vector</param>
 		/// <param name="degree"> - a degree of the polynom</param>
 		/// <returns></returns>
-		PowerPolynomial create_polynom(const VectorDyn& X, const VectorDyn& Y, const size_t degree);
+		PowerPolynomial create_polynom(const Vector& x, const Vector& Y, const size_t degree);
 
 		/// <summary>
 		/// Class represents Legendre polynomial Pn

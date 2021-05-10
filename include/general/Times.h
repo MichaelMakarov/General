@@ -2,6 +2,7 @@
 #include <ostream>
 #include <istream>
 #include <string>
+#include <chrono>
 
 namespace general
 {
@@ -136,13 +137,12 @@ namespace general
 		};
 
 		/// <summary>
-		/// Parsing the datetime from string
+		/// Restore datetime from string of certain format
 		/// </summary>
 		/// <param name="str"> - a string representation of datetime</param>
-		/// <param name="dt"> - a sample of datetime will be parsed to</param>
 		/// <param name="format"> - a string format of datetime representation (y - year, M - month, d - day, h - hour, M - minute, s - second, f - millisecond)</param>
-		/// <returns>true if succeeded</returns>
-		bool try_parse(const std::string& str, DateTime& dt, const std::string& format = "y/M/d h:m:s.f");
+		/// <returns>a datetime corresponding the string (throws an exception when invalid format)</returns>
+		DateTime datetime_from_str(const std::string& str, const std::string& format = "y/M/d h:m:s.f");
 
 		/// <summary>
 		/// Class implements julian date refered to midnight count down
@@ -159,7 +159,7 @@ namespace general
 		public:
 			JD() : _day{ 1 }, _time{ 0 } {}
 			explicit JD(const DateTime& datetime);
-			JD(const long_t day, const double time);
+			JD(const long_t days, const double time_of_day);
 			JD(const double jd);
 			JD(const JD& jd) noexcept = default;
 			JD(JD && jd) noexcept;
@@ -170,12 +170,12 @@ namespace general
 			JD& operator = (JD && jd) noexcept;
 			
 			/// <summary>
-			/// day number (integer part of julian date)
+			/// day number
 			/// </summary>
 			/// <returns>day number</returns>
 			long_t JDN() const { return _day; }
 			/// <summary>
-			/// part of the day
+			/// part of day
 			/// </summary>
 			/// <returns>value between 0 and 1</returns>
 			double T() const { return _time; }
@@ -184,7 +184,6 @@ namespace general
 			/// </summary>
 			/// <returns>corresponding datetime</returns>
 			DateTime to_datetime() const;
-			// Representing as single number
 
 			/// <summary>
 			/// representing as a single number (an integer part is day number + fractional part is a part of the day)
@@ -192,7 +191,17 @@ namespace general
 			/// <returns>single value</returns>
 			double to_double() const;
 
+			/// <summary>
+			/// add time as double
+			/// </summary>
+			/// <param name="dt"> - time in seconds</param>
+			/// <returns>current instance of JD</returns>
 			JD& operator += (const double dt);
+			/// <summary>
+			/// subtract time as double
+			/// </summary>
+			/// <param name="dt"> - time in seconds</param>
+			/// <returns>current instance of JD</returns>
 			JD& operator -= (const double dt);
 
 			JD& add_days(const int n);
@@ -211,6 +220,28 @@ namespace general
 			friend bool operator >= (const JD& f, const JD& s);
 
 			friend std::ostream& operator << (std::ostream& o, const JD& jd);
+		};
+		/// <summary>
+		/// A period of time calculator
+		/// </summary>
+		class Stopwatch
+		{
+			std::chrono::steady_clock::time_point _start, _finish;
+
+		public:
+			/// <summary>
+			/// Start to calculate the period of time
+			/// </summary>
+			void start();
+			/// <summary>
+			/// Finish to calcaulate the period of time
+			/// </summary>
+			void finish();
+			/// <summary>
+			/// Calculated period of time
+			/// </summary>
+			/// <returns>seconds of period duration</returns>
+			double duration() const;
 		};
 	}
 }
