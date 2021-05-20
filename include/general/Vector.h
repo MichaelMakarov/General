@@ -17,85 +17,80 @@ namespace general
 			Vec(const double(&arr)[N]) : std::array<double, N>() {
 				std::memcpy(this->data(), arr, N * sizeof(double));
 			}
-			Vec(const Vec& v) = default;
+			Vec(const Vec& v) noexcept = default;
 			Vec(Vec&& v) noexcept : std::array<double, N>(v) {}
-			Vec(const std::array<double, N>& arr) : std::array<double, N>(arr) {}
-			template<class IterType> Vec(const IterType& begin, const IterType& end) : std::array<double, N>() 
-			{
-				size_t n = end - begin;
-				if (n != N) 
-					throw std::out_of_range("Invalid number of values!");
-				n = 0;
-				for (auto iter = begin; iter != end; ++iter)
-					this->operator[](n++) = *iter;
-			}
+			Vec(const std::array<double, N>& arr) noexcept : std::array<double, N>(arr) {}
 			~Vec() = default;
 
-			Vec& operator = (const Vec& v) noexcept = default;
+			Vec& operator = (const Vec& v) noexcept
+			{
+				static_cast<std::array<double, N>*>(this)->operator=(v);
+				return *this;
+			}
 			Vec& operator = (Vec&& v) noexcept {
 				static_cast<std::array<double, N>*>(this)->operator=(v);
 				return *this;
 			}
 
-			double length() const
+			double length() const noexcept
 			{
 				double value{ 0 };
 				for (size_t i = 0; i < N; ++i) value += this->operator[](i) * this->operator[](i);
 				return std::sqrt(value);
 			}
 
-			Vec& operator += (const Vec& v)
+			Vec& operator += (const Vec& v) noexcept
 			{
 				for (size_t i = 0; i < N; ++i) this->operator[](i) += v[i];
 				return *this;
 			}
-			Vec& operator -= (const Vec& v)
+			Vec& operator -= (const Vec& v) noexcept
 			{
 				for (size_t i = 0; i < N; ++i) this->operator[](i) -= v[i];
 				return *this;
 			}
-			Vec& operator *= (const double value)
+			Vec& operator *= (const double value) noexcept
 			{
 				for (size_t i = 0; i < N; ++i) this->operator[](i) *= value;
 				return *this;
 			}
-			Vec& operator /= (const double value)
+			Vec& operator /= (const double value) noexcept
 			{
 				for (size_t i = 0; i < N; ++i) this->operator[](i) /= value;
 				return *this;
 			}
 
-			friend Vec operator + (const Vec& first, const Vec& second)
+			friend Vec operator + (const Vec& first, const Vec& second) noexcept
 			{
 				Vec result;
 				for (size_t i = 0; i < N; ++i) result[i] = first[i] + second[i];
 				return result;
 			}
-			friend Vec operator - (const Vec& first, const Vec& second)
+			friend Vec operator - (const Vec& first, const Vec& second) noexcept
 			{
 				Vec result;
 				for (size_t i = 0; i < N; ++i) result[i] = first[i] - second[i];
 				return result;
 			}
-			friend double operator * (const Vec& first, const Vec& second)
+			friend double operator * (const Vec& first, const Vec& second) noexcept
 			{
 				double result{ 0 };
 				for (size_t i = 0; i < N; ++i) result += first[i] * second[i];
 				return result;
 			}
-			friend Vec operator * (const double value, const Vec& vec)
+			friend Vec operator * (const double value, const Vec& vec) noexcept
 			{
 				Vec result;
 				for (size_t i = 0; i < N; ++i) result[i] = value * vec[i];
 				return result;
 			}
-			friend Vec operator * (const Vec& vec, const double value)
+			friend Vec operator * (const Vec& vec, const double value) noexcept
 			{
 				Vec result;
 				for (size_t i = 0; i < N; ++i) result[i] = value * vec[i];
 				return result;
 			}
-			friend Vec operator / (const Vec& vec, const double value)
+			friend Vec operator / (const Vec& vec, const double value) noexcept
 			{
 				Vec result;
 				for (size_t i = 0; i < N; ++i) result[i] = vec[i] / value;
@@ -114,18 +109,43 @@ namespace general
 				return is;
 			}
 
-			template<size_t size> static Vec<size> ones()
+			static Vec<N> ones()
 			{
-				Vec<size> vec;
-				for (size_t i = 0; i < size; ++i) vec[i] = 1.0;
+				Vec<N> vec;
+				for (size_t i = 0; i < N; ++i) vec[i] = 1.0;
 				return vec;
 			}
+
 		};
 
-		template<size_t size> Vec<size> normalize(const Vec<size>& vec)
+		template<size_t size> Vec<size> normalize(const Vec<size>& vec) noexcept
 		{
 			return vec / vec.length();
 		}
+
+		template<size_t begin, size_t end, size_t size> Vec<end - begin + 1> slice(const Vec<size> v)
+		{
+			static_assert(end < size && begin < end && (end - begin) < size, "Indices out of bounds!");
+			Vec<end - begin + 1> vec;
+			for (size_t i = begin; i <= end; ++i) vec[i] = v[i];
+			return vec;
+		}
+
+		/// <summary>
+		/// 2d vector (x, y)
+		/// </summary>
+		using Vec2 = Vec<2>;
+		/// <summary>
+		/// 3d vector (x, y, z)
+		/// </summary>
+		using Vec3 = Vec<3>;
+		/// <summary>
+		/// Vector multiplication
+		/// </summary>
+		/// <param name="f">is left vector</param>
+		/// <param name="s">is right vector</param>
+		/// <returns>vector</returns>
+		Vec3 cross(const Vec3& f, const Vec3& s) noexcept;
 
 
 		class Vector : public std::vector<double>

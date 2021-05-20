@@ -29,11 +29,9 @@ namespace general
 		}
 		Quaternion& Quaternion::operator*=(const Quaternion& q)
 		{
-			const double d = s, x = v.x(), y = v.y(), z = v.z();
+			const double d = s, x = v[0], y = v[1], z = v[2];
 			s = d * q.s - v * q.v;
-			v.x() = d * q.v.x() + q.s * x + y * q.v.z() - z * q.v.y();
-			v.y() = d * q.v.y() + q.s * y + z * q.v.x() - x * q.v.z();
-			v.z() = d * q.v.z() + q.s * z + x * q.v.y() - y * q.v.x();
+			v = s * q.v + q.s * v + cross(v, q.v);
 			return *this;
 		}
 		Quaternion& Quaternion::operator*=(const double n)
@@ -89,12 +87,12 @@ namespace general
 		}
 		std::ostream& operator<<(std::ostream& os, const Quaternion& q)
 		{
-			os << "{ " << q.s << "; " << q.v.x() << "; " << q.v.y() << "; " << q.v.z() << " }";
+			os << "{ " << q.s << "; " << q.v[0] << "; " << q.v[1] << "; " << q.v[2] << " }";
 			return os;
 		}
 		std::istream& operator>>(std::istream& is, Quaternion& q)
 		{
-			is >> q.s >> q.v.x() >> q.v.y() >> q.v.z();
+			is >> q.s >> q.v[0] >> q.v[1] >> q.v[2];
 			return is;
 		}
 	}

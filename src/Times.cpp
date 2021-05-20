@@ -65,7 +65,7 @@ namespace general
 			return *this;
 		}
 
-		bool operator > (const Date& f, const Date& s)
+		bool operator > (const Date& f, const Date& s) noexcept
 		{
 			if (f._year > s._year) return true;
 			else if (f._year == s._year) {
@@ -76,7 +76,7 @@ namespace general
 			}
 			return false;
 		}
-		bool operator < (const Date& f, const Date& s)
+		bool operator < (const Date& f, const Date& s) noexcept
 		{
 			if (f._year < s._year) return true;
 			else if (f._year == s._year) {
@@ -87,7 +87,7 @@ namespace general
 			}
 			return false;
 		}
-		bool operator == (const Date& f, const Date& s)
+		bool operator == (const Date& f, const Date& s) noexcept
 		{
 			return f._year == s._year && f._month == s._month && f._day == s._day;
 		}
@@ -149,7 +149,7 @@ namespace general
 			return o;
 		}
 
-		bool operator > (const Time& f, const Time& s)
+		bool operator > (const Time& f, const Time& s) noexcept
 		{
 			if (f._hour > s._hour) return true;
 			else if (f._hour == s._hour)
@@ -166,7 +166,7 @@ namespace general
 			}
 			return false;
 		}
-		bool operator < (const Time& f, const Time& s)
+		bool operator < (const Time& f, const Time& s) noexcept
 		{
 			if (f._hour < s._hour) return true;
 			else if (f._hour == s._hour)
@@ -183,7 +183,7 @@ namespace general
 			}
 			return false;
 		}
-		bool operator == (const Time& f, const Time& s)
+		bool operator == (const Time& f, const Time& s) noexcept
 		{
 			return f._hour == s._hour && f._minute == s._minute && f._second == s._second && f._millisec == s._millisec;
 		}
@@ -325,12 +325,12 @@ namespace general
 			return DateTime(year, month, day, hour, minute, second, millisec);
 		}
 
-		double JD::to_double() const
+		double JD::to_double() const noexcept
 		{
 			return _time + _day;
 		}
 
-		JD& JD::operator = (const double jd)
+		JD& JD::operator = (const double jd) noexcept
 		{
 			double jdn;
 			_time = std::modf(jd, &jdn);
@@ -350,7 +350,7 @@ namespace general
 			return *this;
 		}
 
-		JD& JD::operator += (const double dt)
+		JD& JD::operator += (const double dt) noexcept
 		{
 			double day;
 			_time = std::modf(_time + dt / SEC_PER_DAY, &day);
@@ -358,7 +358,7 @@ namespace general
 			return *this;
 		}
 
-		JD& JD::operator -= (const double dt)
+		JD& JD::operator -= (const double dt) noexcept
 		{
 			double day;
 			_time = std::modf(_time - dt / SEC_PER_DAY, &day);
@@ -366,12 +366,12 @@ namespace general
 			return *this;
 		}
 
-		JD& JD::add_days(const int n)
+		JD& JD::add_days(const int n) noexcept
 		{
 			_day += n;
 			return *this;
 		}
-		JD& JD::add_hours(const int n)
+		JD& JD::add_hours(const int n) noexcept
 		{
 			double day;
 			_time = std::modf(_time + n / HOURS_PER_DAY, &day);
@@ -379,7 +379,7 @@ namespace general
 			if (_time < 0.0) shift_behind();
 			return *this;
 		}
-		JD& JD::add_minutes(const int n)
+		JD& JD::add_minutes(const int n) noexcept
 		{
 			double day;
 			_time = std::modf(_time + n / MIN_PER_DAY, &day);
@@ -387,7 +387,7 @@ namespace general
 			if (_time < 0.0) shift_behind();
 			return *this;
 		}
-		JD& JD::add_seconds(const int n)
+		JD& JD::add_seconds(const int n) noexcept
 		{
 			double day;
 			_time = std::modf(_time + n / SEC_PER_DAY, &day);
@@ -396,7 +396,7 @@ namespace general
 			return *this;
 		}
 
-		JD operator + (const JD& jd, const double dt)
+		JD operator + (const JD& jd, const double dt) noexcept
 		{
 			auto result{ jd };
 			double day;
@@ -404,7 +404,7 @@ namespace general
 			result._day += static_cast<long long>(day);
 			return result;
 		}
-		JD operator - (const JD& jd, const double dt)
+		JD operator - (const JD& jd, const double dt) noexcept
 		{
 			auto result{ jd };
 			double day;
@@ -413,29 +413,29 @@ namespace general
 			return result;
 		}
 
-		double operator - (const JD& f, const JD& s)
+		double operator - (const JD& f, const JD& s) noexcept
 		{
 			using long_t = long long;
 			return (f._time - s._time) + (f._day - s._day);
 		}
 
-		bool operator < (const JD& f, const JD& s)
+		bool operator < (const JD& f, const JD& s) noexcept
 		{
 			return f._day < s._day || (f._day == s._day && f._time < s._time);
 		}
-		bool operator > (const JD& f, const JD& s)
+		bool operator > (const JD& f, const JD& s) noexcept
 		{
 			return f._day > s._day || (f._day == s._day && f._time > s._time);
 		}
-		bool operator == (const JD& f, const JD& s)
+		bool operator == (const JD& f, const JD& s) noexcept
 		{
 			return f._day == s._day && std::abs(f._time - s._time) < (1e-3 / SEC_PER_DAY);
 		}
-		bool operator <= (const JD& f, const JD& s)
+		bool operator <= (const JD& f, const JD& s) noexcept
 		{
 			return f._day < s._day || (f._day == s._day && f._time <= s._time);
 		}
-		bool operator >= (const JD& f, const JD& s)
+		bool operator >= (const JD& f, const JD& s) noexcept
 		{
 			return f._day > s._day || (f._day == s._day && f._time >= s._time);
 		}

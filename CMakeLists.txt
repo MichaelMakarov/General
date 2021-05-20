@@ -11,7 +11,7 @@ include_directories(
 add_library(
 	General 
 
-	src/Geometry.cpp
+	
 	src/Times.cpp
 	src/Mathematics.cpp
 	  

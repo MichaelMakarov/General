@@ -1,7 +1,7 @@
 #pragma once
 #include <istream>
 #include <ostream>
-#include "Geometry.h"
+#include "Vector.h"
 
 namespace general
 {
@@ -14,9 +14,9 @@ namespace general
 			Vec3 v;
 
 		public:
-			Quaternion() noexcept : s{ 1 }, v{ Vec3(0, 0, 0) } {}
+			Quaternion() noexcept : s{ 1 } {}
 			Quaternion(const double s0, const double x, const double y, const double z) noexcept :
-				s{ s0 }, v{ Vec3(x, y, z) }
+				s{ s0 }, v{ Vec3({ x, y, z }) }
 			{}
 			Quaternion(const double s0, const Vec3& vec) noexcept : s{ s0 }, v{ vec } {}
 			Quaternion(const Quaternion& q) noexcept : s{ q.s }, v{ q.v } {}

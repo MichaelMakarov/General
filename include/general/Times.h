@@ -39,13 +39,13 @@ namespace general
 			Date& operator = (const Date& d) noexcept = default;
 			Date& operator = (Date&& d) noexcept;
 
-			size_t get_year() const { return _year; }
-			unsigned short get_month() const { return _month; }
-			unsigned short get_day() const { return _day; }
+			size_t get_year() const noexcept { return _year; }
+			unsigned short get_month() const noexcept { return _month; }
+			unsigned short get_day() const noexcept { return _day; }
 
-			friend bool operator > (const Date& f, const Date& s);
-			friend bool operator < (const Date& f, const Date& s);
-			friend bool operator == (const Date& f, const Date& s);
+			friend bool operator > (const Date& f, const Date& s) noexcept;
+			friend bool operator < (const Date& f, const Date& s) noexcept;
+			friend bool operator == (const Date& f, const Date& s) noexcept;
 
 			friend std::ostream& operator << (std::ostream& o, const Date& d);
 			friend std::istream& operator >> (std::istream& i, Date& d);
@@ -74,14 +74,14 @@ namespace general
 			Time& operator = (const Time& t) noexcept = default;
 			Time& operator = (Time&& t) noexcept;
 
-			unsigned short get_hour() const { return _hour; }
-			unsigned short get_minute() const { return _minute; }
-			unsigned short get_second() const { return _second; }
-			unsigned short get_millisecond() const { return _millisec; }
+			unsigned short get_hour() const noexcept { return _hour; }
+			unsigned short get_minute() const noexcept { return _minute; }
+			unsigned short get_second() const noexcept { return _second; }
+			unsigned short get_millisecond() const noexcept { return _millisec; }
 
-			friend bool operator > (const Time& f, const Time& s);
-			friend bool operator < (const Time& f, const Time& s);
-			friend bool operator == (const Time& f, const Time& s);
+			friend bool operator > (const Time& f, const Time& s) noexcept;
+			friend bool operator < (const Time& f, const Time& s) noexcept;
+			friend bool operator == (const Time& f, const Time& s) noexcept;
 
 			friend std::ostream& operator << (std::ostream& o, const Time& d);
 		};
@@ -154,7 +154,7 @@ namespace general
 			long_t _day;
 			double _time;
 
-			void shift_behind() { _time += 1.0; _day -= 1; }
+			void shift_behind() noexcept { _time += 1.0; _day -= 1; }
 
 		public:
 			JD() : _day{ 1 }, _time{ 0 } {}
@@ -165,7 +165,7 @@ namespace general
 			JD(JD && jd) noexcept;
 			~JD() = default;
 
-			JD& operator = (const double jd);
+			JD& operator = (const double jd) noexcept;
 			JD& operator = (const JD& jd) noexcept = default;
 			JD& operator = (JD && jd) noexcept;
 			
@@ -173,12 +173,12 @@ namespace general
 			/// day number
 			/// </summary>
 			/// <returns>day number</returns>
-			long_t JDN() const { return _day; }
+			long_t JDN() const noexcept { return _day; }
 			/// <summary>
 			/// part of day
 			/// </summary>
 			/// <returns>value between 0 and 1</returns>
-			double T() const { return _time; }
+			double T() const noexcept { return _time; }
 			/// <summary>
 			/// conversion to corresponding datetime structure
 			/// </summary>
@@ -189,35 +189,35 @@ namespace general
 			/// representing as a single number (an integer part is day number + fractional part is a part of the day)
 			/// </summary>
 			/// <returns>single value</returns>
-			double to_double() const;
+			double to_double() const noexcept;
 
 			/// <summary>
 			/// add time as double
 			/// </summary>
 			/// <param name="dt"> - time in seconds</param>
 			/// <returns>current instance of JD</returns>
-			JD& operator += (const double dt);
+			JD& operator += (const double dt) noexcept;
 			/// <summary>
 			/// subtract time as double
 			/// </summary>
 			/// <param name="dt"> - time in seconds</param>
 			/// <returns>current instance of JD</returns>
-			JD& operator -= (const double dt);
+			JD& operator -= (const double dt) noexcept;
 
-			JD& add_days(const int n);
-			JD& add_hours(const int n);
-			JD& add_minutes(const int n);
-			JD& add_seconds(const int n);
+			JD& add_days(const int n) noexcept;
+			JD& add_hours(const int n) noexcept;
+			JD& add_minutes(const int n) noexcept;
+			JD& add_seconds(const int n) noexcept;
 
-			friend JD operator + (const JD& jd, const double dt);
-			friend JD operator - (const JD& jd, const double dt);
-			friend double operator - (const JD& f, const JD& s);
+			friend JD operator + (const JD& jd, const double dt) noexcept;
+			friend JD operator - (const JD& jd, const double dt) noexcept;
+			friend double operator - (const JD& f, const JD& s) noexcept;
 
-			friend bool operator < (const JD& f, const JD& s);
-			friend bool operator > (const JD& f, const JD& s);
-			friend bool operator == (const JD& f, const JD& s);
-			friend bool operator <= (const JD& f, const JD& s);
-			friend bool operator >= (const JD& f, const JD& s);
+			friend bool operator < (const JD& f, const JD& s) noexcept;
+			friend bool operator > (const JD& f, const JD& s) noexcept;
+			friend bool operator == (const JD& f, const JD& s) noexcept;
+			friend bool operator <= (const JD& f, const JD& s) noexcept;
+			friend bool operator >= (const JD& f, const JD& s) noexcept;
 
 			friend std::ostream& operator << (std::ostream& o, const JD& jd);
 		};

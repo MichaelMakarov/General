@@ -4,6 +4,15 @@ namespace general
 {
 	namespace math 
 	{
+		Vec3 cross(const Vec3& f, const Vec3& s) noexcept
+		{
+			return Vec3({
+				f[1] * s[2] - f[2] * s[1],
+				f[2] * s[0] - f[0] * s[2],
+				f[0] * s[1] - f[1] * s[0]
+			});
+		}
+
 		Vector& Vector::operator = (Vector&& vec) noexcept
 		{
 			static_cast<std::vector<double>*>(this)->operator=(vec);

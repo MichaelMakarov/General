@@ -1,6 +1,7 @@
 #pragma once
 #include "GeneralConstants.h"
 #include "Quaternion.h"
+#include "Matrix.h"
 
 namespace general
 {
@@ -57,8 +58,6 @@ namespace general
             if (angle > 0.0) return angle - std::floor(angle / PI2) * PI2;
             else return angle + std::ceil(-angle / PI2) * PI2;
         }
-        // Factorial
-        long double factorial(const size_t x);
         // A vector transforming by rotation using quaternion.
         // v - the initial vector,
         // q - the quaternion of the rotation.

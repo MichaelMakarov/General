@@ -11,36 +11,28 @@ namespace general
 			static_assert(M * N > size_t(0), "MatrixFix size is equal zero!");
 		public:
 			MatrixMxN() : std::array<double, M * N>() {}
-			MatrixMxN(const std::initializer_list<double>& values)
-			{
-				if (values.size() != M * N) 
-					throw std::invalid_argument("Invalid args number!");
-				size_t index = 0;
-				for (const auto& v : values)
-					this->operator[](index++) = v;
-			}
 			MatrixMxN(const double(&values)[M][N])
 			{
 				for (size_t m = 0; m < M; ++m)
 					std::memcpy(&this->data()[m * N], values[m], N * sizeof(double));
 			}
-			MatrixMxN(const MatrixMxN& MatrixMxN) noexcept : std::array<double, M * N>(MatrixMxN) {};
-			MatrixMxN(MatrixMxN&& MatrixMxN) noexcept : std::array<double, M * N>(MatrixMxN) {}
-			~MatrixMxN() noexcept = default;
+			MatrixMxN(const MatrixMxN& m) noexcept : std::array<double, M * N>(m) {};
+			MatrixMxN(MatrixMxN&& m) noexcept : std::array<double, M * N>(m) {}
+			~MatrixMxN() = default;
 
-			MatrixMxN& operator = (const MatrixMxN& MatrixMxN) noexcept
+			MatrixMxN& operator = (const MatrixMxN& m) noexcept
 			{
-				std::memcpy(this->data(), MatrixMxN.data(), MatrixMxN.size() * sizeof(double));
+				static_cast<std::array<double, M * N>*>(this)->operator=(m);
 				return *this;
 			}
-			MatrixMxN& operator = (MatrixMxN&& MatrixMxN) noexcept
+			MatrixMxN& operator = (MatrixMxN&& m) noexcept
 			{
-				this->data() = std::move(MatrixMxN.data());
+				static_cast<std::array<double, M * N>*>(this)->operator=(m);
 				return *this;
 			}
 
-			size_t rows() const { return M; }
-			size_t columns() const { return N; }
+			constexpr size_t rows() const noexcept { return M; }
+			constexpr size_t columns() const noexcept { return N; }
 
 			double det() const
 			{
@@ -58,29 +50,29 @@ namespace general
 				catch (std::exception ) { return 0.0; }
 			}
 
-			const double& operator () (const size_t m, const size_t n) const { return this->operator[](m * N + n); }
-			double& operator () (const size_t m, const size_t n) { return this->operator[](m* N + n); }
+			constexpr const double& operator () (const size_t m, const size_t n) const noexcept { return this->operator[](m * N + n); }
+			inline double& operator () (const size_t m, const size_t n) noexcept { return this->operator[](m * N + n); }
 			
-			Vec<N> get_row(size_t index) const
+			Vec<N> get_row(const size_t index) const
 			{
 				Vec<N> row;
 				for (size_t i = 0; i < N; ++i)
 					row[i] = this->operator()(index, i);
 				return row;
 			}
-			Vec<M> get_column(size_t index) const
+			Vec<M> get_column(const size_t index) const
 			{
 				Vec<M> column;
 				for (size_t i = 0; i < M; ++i)
 					column[i] = this->operator()(i, index);
 				return column;
 			}
-			void set_row(size_t index, const Vec<N>& vector)
+			void set_row(const size_t index, const Vec<N>& vector)
 			{
 				for (size_t i = 0; i < N; ++i)
 					this->operator()(index, i) = vector[i];
 			}
-			void set_column(size_t index, const Vec<M>& vector)
+			void set_column(const size_t index, const Vec<M>& vector)
 			{
 				for (size_t i = 0; i < M; ++i)
 					this->operator()(i, index) = vector[i];
@@ -176,7 +168,7 @@ namespace general
 				os << "}";
 				return os;
 			}
-			friend std::istream& operator >>(std::istream& is, MatrixMxN& matrix)
+			friend std::istream& operator >>(std::istream& is, MatrixMxN<M, N>& matrix)
 			{
 				for (size_t i = 0; i < matrix.size(); ++i) is >> matrix[i];
 				return is;
@@ -184,7 +176,7 @@ namespace general
 
 			static MatrixMxN<M, N> identity()
 			{
-				static_assert(M == N, "MatrixFix is not square!");
+				static_assert(M == N, "Matrix is not square!");
 				MatrixMxN<M, N> result;
 				for (size_t i = 0; i < M; ++i) result[i * N + i] = 1.0;
 				return result;
@@ -363,6 +355,7 @@ namespace general
 			U = A * transpose(V) * Sinv;
 		}
 
+		using Matrix3x3 = MatrixMxN<3, 3>;
 
 		class Matrix
 		{

@@ -2,7 +2,6 @@
 #include "GeneralConstants.h"
 #include "Polynomial.h"
 #include "Matrix.h"
-#include "Geometry.h"
 #include "Quaternion.h"
 #include "Mathematics.h"
 #include <iostream>
@@ -155,14 +154,14 @@ void test_matrix3()
 
 	const double a[3]{ 0.212340538, 0.590533136, 0.911412040 };
 	auto m1{ Matrix3x3() };
-	auto m2{ Matrix3x3({1, 2, 3, 1, 2, 4, 3, 2, 1}) };
+	auto m2{ Matrix3x3({ { 1, 2, 3 }, { 1, 2, 4 }, { 3, 2, 1 } }) };
 	auto m3{ inverse(m2) };
 	auto m4{ Matrix3x3::identity() };
 	auto m5{ Matrix3x3({
-		a[0], a[0] * a[0], a[0] * a[0] * a[0],
-		a[1], a[1] * a[1], a[1] * a[1] * a[1],
-		a[2], a[2] * a[2], a[2] * a[2] * a[2]
-		}) };
+		{ a[0], a[0] * a[0], a[0] * a[0] * a[0] },
+		{ a[1], a[1] * a[1], a[1] * a[1] * a[1] },
+		{ a[2], a[2] * a[2], a[2] * a[2] * a[2] }
+	}) };
 	auto m6{ inverse(m5) };
 	
 	std::cout << "M1: " << m1 << std::endl;
@@ -187,19 +186,17 @@ void test_vector()
 	auto vec3 = Vec<7>({ 2.3, -0.1, 9.8, 12.0, 4.3, -1.5, 0.9 });
 	std::array<double, 9> array { 5, 5, 5, 5, 5, 1, 1, 1, 2 };
 	Vec vec4{ array };
-	auto vec5{ Vec<9>(array.begin(), array.end()) };
-	auto vec6{ vec5 };
+	Vec3 vec7 = { { 3.4, 0.9, 1.2 } };
+	std::array<double, 3> arr = std::array<double, 3>{ 1.2, 3.4, 1.0 };
 
-	std::cout << "empty vector of size 0: " << vec1 << std::endl;
+	std::cout << "empty vector of size 5: " << vec1 << std::endl;
 	std::cout << "empty vector of size 10: " << vec2 << std::endl;
 	std::cout << "vector 3: " << vec3 << std::endl;
 	std::cout << "vector 4: " << vec4 << std::endl;
-	std::cout << "vector 5: " << vec5 << std::endl;
-	std::cout << "vector 6: " << vec6 << std::endl;
+	std::cout << "vector 7: " << vec7 << std::endl;
 
 	std::cout << "vector 2 length = " << vec2.length() << std::endl;
 	std::cout << "vector 3 length = " << vec3.length() << std::endl;
-	std::cout << "vector 3 * vector 4 = " << vec5 * vec4 << std::endl;
 
 }
 
@@ -207,12 +204,12 @@ void test_matrix()
 {
 	std::cout << "\n...Matrix tests...\n";
 
-	auto list = { 4.0, 5.0, -1.0, -5.6, 10.0, 2.34, -0.31, 3.33, -9.0 };
-	const double array2d[2][5]{ { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 0 } };
+	const double arr2d_1[3][3] = { { 4.0, 5.0, -1.0 }, { -5.6, 10.0, 2.34 }, { -0.31, 3.33, -9.0 } };
+	const double arr2d_2[2][5]{ { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 0 } };
 	MatrixMxN<3, 3> m1;
 	auto m2{ MatrixMxN<5, 4>() };
-	auto m3{ MatrixMxN<3, 3>(list) };
-	auto m4{ MatrixMxN<2, 5>(array2d) };
+	auto m3{ MatrixMxN<3, 3>(arr2d_1) };
+	auto m4{ MatrixMxN<2, 5>(arr2d_2) };
 	auto m5{ m3 };
 	auto v{ Vec<5>({2, -1, 0, 0, 3}) };
 	const double n{ 0.5 };
@@ -252,15 +249,15 @@ void test_quaternion()
 	std::cout << "q1^-1: " << Quaternion::inv(q1) << std::endl;
 	std::cout << "q2 * 0.5: " << q2 * 0.5 << std::endl;
 
-	auto v{ Vec3(1, 1, 1) };
-	auto a{ Vec3(0, 1, 0) };
+	auto v{ Vec3({1, 1, 1}) };
+	auto a{ Vec3({0, 1, 0}) };
 	auto t{ 45 };
 	std::cout << "v: " << v << std::endl;
 	std::cout << "a: " << a << std::endl;
 	std::cout << v << " rotation around " << a << " by angle " << t << ": " << rotate_vector(v, a, deg_to_rad(t)) << std::endl;
 
 	double sint{ std::sin(deg_to_rad(t)) }, cost{ std::cos(deg_to_rad(t)) };
-	auto m{ Matrix3x3({cost, sint, 0, -sint, cost, 0, 0, 0, 1}) };
+	auto m{ Matrix3x3({ {cost, sint, 0 },  { -sint, cost, 0 }, { 0, 0, 1 } }) };
 	auto q = quaternion_from_matrix(m);
 	std::cout << "initial matrix: " << m << std::endl;
 	std::cout << "quaternion from matrix: " << q << std::endl;
