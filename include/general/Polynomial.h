@@ -1,5 +1,5 @@
 #pragma once
-#include "Vector.h"
+#include "Matrix.h"
 #include <functional>
 
 namespace general
@@ -9,54 +9,89 @@ namespace general
 		/// <summary>
 		/// Class represents a polynom as a single variable function
 		/// </summary>
-		class PowerPolynomial
+		template <size_t N> class PowerPolynomial
 		{
-		private:
+		public:
 			/// <summary>
-			/// coefficients of the polynom
+			/// coefficients of the polynomial
 			/// </summary>
-			std::vector<double> _data;
+			double data[N + 1]{};
 
 		public:
-			explicit PowerPolynomial(const size_t degree = 0) : _data{ std::vector<double>(degree + 1) } {}
-			/// <summary>
-			/// Initializing by an array of the coefficients
-			/// </summary>
-			/// <param name="coefficients"> - an array of the coefficients from zero to the highest degree</param>
-			template<size_t size> explicit PowerPolynomial(const double(&coefficients)[size]) : _data{ std::vector<double>(size) }
+			constexpr size_t degree() const noexcept { return N; }
+			constexpr double& operator [] (const size_t index) noexcept { return data[index]; }
+			constexpr const double& operator [] (const size_t index) const noexcept { return data[index]; }
+
+			constexpr double operator () (const double x) const noexcept
 			{
-				std::memcpy(_data.data(), coefficients, size * sizeof(double));
-			}
-			PowerPolynomial(const PowerPolynomial& p) : _data{ p._data } {}
-			PowerPolynomial(PowerPolynomial&& p) noexcept : _data{ std::move(p._data) } {}
-			~PowerPolynomial() = default;
-
-			PowerPolynomial& operator = (const PowerPolynomial& p) { _data = p._data; return *this; }
-			PowerPolynomial& operator = (PowerPolynomial&& p) noexcept { _data = std::move(p._data); return *this; }
-
-			size_t degree() const { return _data.size() - 1; }
-			double& operator [] (const size_t index) { return _data[index]; }
-			const double& operator [] (const size_t index) const { return _data[index]; }
-
-			double operator () (const double x) const
-			{
-				double result{ _data[0] };
+				double result{ data[0] };
 				double mult{ x };
-				for (size_t i = 1; i < _data.size(); ++i) {
-					result += mult * _data[i];
+				for (size_t i = 1; i < N + 1; ++i) {
+					result += mult * data[i];
 					mult *= x;
 				}
 				return result;
 			}
 		};
+
 		/// <summary>
-		/// Creating a polynom as a solution of the LST
+		/// least squares polynomial approximation solving task sum||y - p(x)||^2 -> min
 		/// </summary>
-		/// <param name="X"> - a vector</param>
-		/// <param name="Y"> - a vector</param>
-		/// <param name="degree"> - a degree of the polynom</param>
-		/// <returns></returns>
-		PowerPolynomial create_polynom(const Vector& x, const Vector& Y, const size_t degree);
+		/// <typeparam name="Container">a data container type</typeparam>
+		/// <param name="x">variable values</param>
+		/// <param name="y">values of the function</param>
+		/// <returns>approximating polynomial</returns>
+		template<size_t degree, class Container> 
+		PowerPolynomial<degree> lstsq(const Container& x, const Container& y)
+		{
+			auto A{ Matrix(x.size(), degree + 1) };
+			auto B{ Vector(y) };
+			PowerPolynomial<degree> poly;
+			size_t i{ 0 };
+			for (const auto& elem : x) {
+				A(i, 0) = 1.0;
+				for (size_t k = 1; k < degree + 1; ++k)
+					A(i, k) = A(i, k - 1) * elem;
+				++i;
+			}
+			i = 0;
+			for (const auto& elem : y) B[i++] = elem;
+			const auto AT = transpose(A);
+			const auto M{ AT * A };
+			auto D{ Matrix(M.rows(), M.columns()) };
+			for (i = 0; i < M.rows(); ++i) D(i, i) = 1 / std::sqrt(M(i, i));
+			auto c = DxA(D, AxD(inverse(DxA(D, AxD(M, D))), D)) * AT * B;
+			for (i = 0; i < degree + 1; ++i) poly[i] = c[i];
+			return poly;
+		}
+		
+
+		/// <summary>
+		/// least squares polynomial approximation solving task sum||y - p(x)||^2 -> min
+		/// </summary>
+		/// <param name="x">variable values</param>
+		/// <param name="y">values of the function</param>
+		/// <returns>approximating polynomial</returns>
+		template<size_t degree, size_t size> PowerPolynomial<degree> lstsq(const double(&x)[size], const double(&y)[size])
+		{
+			Vec<size> B;
+			PowerPolynomial<degree> poly;
+			MatrixMxN<size, degree + 1> A;
+			for (size_t i{ 0 }; i < size; ++i) {
+				A(i, 0) = 1.0;
+				for (size_t k{ 0 }; k < degree; ++k)
+					A(i, k + 1) = A(i, k) * x[i];
+				B[i] = y[i];
+			} 
+			const auto At = transpose(A);
+			const auto M{ At * A };
+			MatrixMxN<degree + 1, degree + 1> D;
+			for (size_t i{ 0 }; i < M.rows(); ++i) D(i, i) = 1 / std::sqrt(M(i, i));
+			auto C = DxA(D, AxD(inverse(DxA(D, AxD(M, D))), D)) * At * B;
+			auto c = inverse(At * A) * At * B;
+			for (size_t i{ 0 }; i < degree + 1; ++i) poly[i] = c[i];
+			return poly;
+		}
 
 		/// <summary>
 		/// Class represents Legendre polynomial Pn

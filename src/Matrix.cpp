@@ -182,10 +182,10 @@ namespace general
 			return is;
 		}
 
-		static Matrix identity(const size_t size)
+		static Matrix identity(const size_t dim)
 		{
-			auto m{ Matrix(size, size) };
-			for (size_t i = 0; i < size; ++i)
+			auto m{ Matrix(dim, dim) };
+			for (size_t i = 0; i < dim; ++i)
 				m(i, i) = 1.0;
 			return m;
 		}
@@ -208,8 +208,7 @@ namespace general
 				pivot = result(k, k);
 				if (std::abs(pivot) < 1e-20)
 					throw std::runtime_error("Degenerate matrix!");
-				for (size_t m = 0; m < result._rows; ++m)
-					result(m, k) = -result(m, k) / pivot;
+				for (size_t m = 0; m < result._rows; ++m) result(m, k) /= -pivot;
 				for (size_t m = 0; m < result._rows; ++m) {
 					if (m != k) {
 						for (size_t n = 0; n < result._cols; ++n) {
@@ -218,15 +217,14 @@ namespace general
 						}
 					}
 				}
-				for (size_t n = 0; n < result._cols; ++n)
-					result(k, n) /= pivot;
+				for (size_t n = 0; n < result._cols; ++n) result(k, n) /= pivot;
 				result(k, k) = 1 / pivot;
 			}
 			return result;
 		}
 		void LU(const Matrix& A, Matrix& L, Matrix& U)
 		{
-			if (A._rows != A._cols)
+			if (A._rows != A._cols) 
 				throw std::invalid_argument("Matrix is not square!");
 			U = L = Matrix(A._rows, A._cols);
 			double sum;
@@ -249,7 +247,7 @@ namespace general
 		}
 		void PLU(const Matrix& A, Matrix& L, Matrix& U, std::vector<size_t>& P, size_t& k)
 		{
-			if (A._rows != A._cols)
+			if (A._rows != A._cols) 
 				throw std::invalid_argument("Matrix is not square!");
 			k = 0;
 			L = U = Matrix(A._rows, A._cols);
@@ -265,7 +263,8 @@ namespace general
 						buf = absv;
 						imax = i;
 					}
-				if (buf < 1e-16) throw std::runtime_error("MatrixFix is degenerate!");
+				if (buf < 1e-16) 
+					throw std::runtime_error("Matrix is degenerate!");
 				if (imax != m) {
 					for (size_t n = m; n < A._cols; ++n) std::swap(U(m, n), U(imax, n));
 					for (size_t n = 0; n < m; ++n) std::swap(L(m, n), L(imax, n));

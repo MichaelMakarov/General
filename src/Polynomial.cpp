@@ -5,27 +5,6 @@ namespace general
 {
 	namespace math
 	{
-		PowerPolynomial create_polynom(const Vector& x, const Vector& Y, const size_t degree)
-		{
-			if (x.size() != Y.size())
-				throw std::invalid_argument("X and Y have different dimensions!");
-			auto A{ Matrix(x.size(), degree + 1) };
-			auto polynom{ PowerPolynomial(degree) };
-			for (size_t i = 0; i < x.size(); ++i) {
-				A(i, 0) = 1.0;
-				for (size_t k = 1; k < degree + 1; ++k)
-					A(i, k) = A(i, k - 1) * x[i];
-			}
-			auto AT = transpose(A);
-			auto M{ AT * A };
-			auto D{ Matrix(M.rows(), M.columns()) };
-			for (size_t i = 0; i < M.rows(); ++i) D(i, i) = 1 / std::sqrt(M(i, i));
-			auto C = DxA(D, AxD(inverse(DxA(D, AxD(M, D))), D)) * AT * Y;
-			for (size_t i = 0; i < degree + 1; ++i)
-				polynom[i] = C[i];
-			return polynom;
-		}
-
 		LegendrePolynomial::LegendrePolynomial(
 			const size_t degree,
 			const bool normalized)

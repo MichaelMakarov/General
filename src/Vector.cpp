@@ -4,15 +4,6 @@ namespace general
 {
 	namespace math 
 	{
-		Vec3 cross(const Vec3& f, const Vec3& s) noexcept
-		{
-			return Vec3({
-				f[1] * s[2] - f[2] * s[1],
-				f[2] * s[0] - f[0] * s[2],
-				f[0] * s[1] - f[1] * s[0]
-			});
-		}
-
 		Vector& Vector::operator = (Vector&& vec) noexcept
 		{
 			static_cast<std::vector<double>*>(this)->operator=(vec);
@@ -113,9 +104,9 @@ namespace general
 			return is;
 		}
 
-		Vector Vector::ones(const size_t size)
+		Vector Vector::ones(const size_t dim)
 		{
-			auto vec{ Vector(size) };
+			auto vec{ Vector(dim) };
 			for (size_t i = 0; i < vec.size(); ++i)	vec[i] = 1.0;
 			return vec;
 		}

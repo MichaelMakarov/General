@@ -5,34 +5,32 @@ namespace general
 {
 	namespace math
 	{
+		constexpr double abs(const double val) noexcept {
+			if (val < 0.0) return -val;
+			else return val;
+		}
+
 		template<size_t M, size_t N> 
-		class MatrixMxN : public std::array<double, M * N>
+		class MatrixMxN
 		{
 			static_assert(M * N > size_t(0), "MatrixFix size is equal zero!");
 		public:
-			MatrixMxN() : std::array<double, M * N>() {}
-			MatrixMxN(const double(&values)[M][N])
-			{
-				for (size_t m = 0; m < M; ++m)
-					std::memcpy(&this->data()[m * N], values[m], N * sizeof(double));
-			}
-			MatrixMxN(const MatrixMxN& m) noexcept : std::array<double, M * N>(m) {};
-			MatrixMxN(MatrixMxN&& m) noexcept : std::array<double, M * N>(m) {}
-			~MatrixMxN() = default;
-
-			MatrixMxN& operator = (const MatrixMxN& m) noexcept
-			{
-				static_cast<std::array<double, M * N>*>(this)->operator=(m);
-				return *this;
-			}
-			MatrixMxN& operator = (MatrixMxN&& m) noexcept
-			{
-				static_cast<std::array<double, M * N>*>(this)->operator=(m);
-				return *this;
-			}
-
+			double elems[M][N]{};
+		public:
 			constexpr size_t rows() const noexcept { return M; }
 			constexpr size_t columns() const noexcept { return N; }
+
+			double** data() { return elems; }
+			const double** data() const { return elems; }
+
+			[[nodiscard]] constexpr double& operator() (const size_t m, const size_t n) 
+			{ 
+				return elems[m][n];
+			}
+			[[nodiscard]] constexpr const double& operator() (const size_t m, const size_t n) const
+			{
+				return elems[m][n];
+			}
 
 			double det() const
 			{
@@ -49,112 +47,113 @@ namespace general
 				}
 				catch (std::exception ) { return 0.0; }
 			}
-
-			constexpr const double& operator () (const size_t m, const size_t n) const noexcept { return this->operator[](m * N + n); }
-			inline double& operator () (const size_t m, const size_t n) noexcept { return this->operator[](m * N + n); }
 			
-			Vec<N> get_row(const size_t index) const
+			constexpr Vec<N> get_row(const size_t index) const
 			{
 				Vec<N> row;
-				for (size_t i = 0; i < N; ++i)
-					row[i] = this->operator()(index, i);
+				for (size_t i = 0; i < N; ++i) row[i] = this->operator()(index, i);
 				return row;
 			}
-			Vec<M> get_column(const size_t index) const
+			constexpr Vec<M> get_column(const size_t index) const
 			{
 				Vec<M> column;
-				for (size_t i = 0; i < M; ++i)
-					column[i] = this->operator()(i, index);
+				for (size_t i = 0; i < M; ++i) column[i] = this->operator()(i, index);
 				return column;
 			}
 			void set_row(const size_t index, const Vec<N>& vector)
 			{
-				for (size_t i = 0; i < N; ++i)
-					this->operator()(index, i) = vector[i];
+				for (size_t i = 0; i < N; ++i) this->operator()(index, i) = vector[i];
 			}
 			void set_column(const size_t index, const Vec<M>& vector)
 			{
-				for (size_t i = 0; i < M; ++i)
-					this->operator()(i, index) = vector[i];
+				for (size_t i = 0; i < M; ++i) this->operator()(i, index) = vector[i];
 			}
 
 			MatrixMxN& operator += (const MatrixMxN& matrix)
 			{
-				for (size_t i = 0; i < this->size(); ++i)
-					this->operator[](i) += matrix[i];
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						this->operator()(m, n) += matrix(m, n);
 				return *this;
 			}
 			MatrixMxN& operator -= (const MatrixMxN& matrix)
 			{
-				for (size_t i = 0; i < this->size(); ++i)
-					this->operator[](i) -= matrix[i];
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						this->operator()(m, n) -= matrix(m, n);
 				return *this;
 			}
 			MatrixMxN& operator *= (const double value)
 			{
-				for (size_t i = 0; i < this->size(); ++i)
-					this->operator[](i) *= value;
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						this->operator()(m, n) *= value;
 				return *this;
 			}
 			MatrixMxN& operator /= (const double value)
 			{
-				for (size_t i = 0; i < this->size(); ++i)
-					this->operator[](i) /= value;
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						this->operator()(m, n) /= value;
 				return *this;
 			}
 
-			friend MatrixMxN<M, N> operator + (const MatrixMxN<M, N>& first, const MatrixMxN<M, N>& second)
+			friend constexpr MatrixMxN<M, N> operator + (const MatrixMxN<M, N>& first, const MatrixMxN<M, N>& second)
 			{
-				MatrixMxN<M, N> result;
-				for (size_t i = 0; i < first.size(); ++i)
-					result[i] = first[i] + second[i];
+				MatrixMxN<M, N> result{};
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result(m, n) = first(m, n) + second(m, n);
 				return result;
 			}
-			friend MatrixMxN<M, N> operator - (const MatrixMxN<M, N>& first, const MatrixMxN<M, N>& second)
+			friend constexpr MatrixMxN<M, N> operator - (const MatrixMxN<M, N>& first, const MatrixMxN<M, N>& second)
 			{
-				MatrixMxN<M, N> result;
-				for (size_t i = 0; i < first.size(); ++i)
-					result[i] = first[i] - second[i];
+				MatrixMxN<M, N> result{};
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result(m, n) = first(m, n) - second(m, n);
 				return result;
 			}
 			template<size_t K>
-			friend MatrixMxN<M, K> operator * (const MatrixMxN<M, N>& first, const MatrixMxN<N, K>& second)
+			friend constexpr MatrixMxN<M, K> operator * (const MatrixMxN<M, N>& first, const MatrixMxN<N, K>& second)
 			{
-				MatrixMxN<M, K> result;
-				for (size_t m = 0; m < M; ++m) {
-					for (size_t n = 0; n < N; ++n) {
-						for (size_t k = 0; k < K; ++k)
-							result[m * K + k] += first[m * N + n] * second[n * K + k];
-					}
-				}
-				return result;
-			}
-			friend Vec<M> operator * (const MatrixMxN<M, N>& matrix, const Vec<N>& vector)
-			{
-				Vec<M> result;
+				MatrixMxN<M, K> result{};
 				for (size_t m = 0; m < M; ++m)
 					for (size_t n = 0; n < N; ++n)
-						result[m] += matrix[m * N + n] * vector[n];
+						for (size_t k = 0; k < K; ++k)
+							result(m, k) += first(m, n) * second(n, k);
 				return result;
 			}
-			friend MatrixMxN<M, N> operator * (const MatrixMxN<M, N>& matrix, const double value)
+			friend constexpr Vec<M> operator * (const MatrixMxN<M, N>& matrix, const Vec<N>& vector)
 			{
-				MatrixMxN<M, N> result;
-				for (size_t i = 0; i < result.size(); ++i)
-					result[i] = matrix[i] * value;
+				Vec<M> result{};
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result[m] += matrix(m, n) * vector[n];
 				return result;
 			}
-			friend MatrixMxN<M, N> operator * (const double value, const MatrixMxN<M, N>& matrix)
+			friend constexpr MatrixMxN<M, N> operator * (const MatrixMxN<M, N>& matrix, const double value)
 			{
-				MatrixMxN<M, N> result;
-				for (size_t i = 0; i < result.size(); ++i)
-					result[i] = matrix[i] * value;
+				MatrixMxN<M, N> result{};
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result(m, n) = matrix(m, n) * value;
 				return result;
 			}
-			friend MatrixMxN<M, N> operator / (const MatrixMxN<M, N>& matrix, const double value)
+			friend constexpr MatrixMxN<M, N> operator * (const double value, const MatrixMxN<M, N>& matrix)
 			{
-				MatrixMxN<M, N> result;
-				for (size_t i = 0; i < result.size(); ++i) result[i] = matrix[i] / value;
+				MatrixMxN<M, N> result{};
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result(m, n) = matrix(m, n) * value;
+				return result;
+			}
+			friend constexpr MatrixMxN<M, N> operator / (const MatrixMxN<M, N>& matrix, const double value)
+			{
+				MatrixMxN<M, N> result{};
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						result(m, n) = matrix(m, n) / value;
 				return result;
 			}
 			friend std::ostream& operator <<(std::ostream& os, const MatrixMxN<M, N>& matrix)
@@ -162,7 +161,7 @@ namespace general
 				os << "{ ";
 				for (size_t m = 0; m < M; ++m) {
 					os << "{ ";
-					for (size_t n = 0; n < N; ++n) os << matrix[m * N + n] << "; ";
+					for (size_t n = 0; n < N; ++n) os << matrix(m, n) << "; ";
 					os << "} ";
 				}
 				os << "}";
@@ -170,41 +169,53 @@ namespace general
 			}
 			friend std::istream& operator >>(std::istream& is, MatrixMxN<M, N>& matrix)
 			{
-				for (size_t i = 0; i < matrix.size(); ++i) is >> matrix[i];
+				for (size_t m = 0; m < M; ++m)
+					for (size_t n = 0; n < N; ++n)
+						is >> matrix(m, n);
 				return is;
 			}
 
-			static MatrixMxN<M, N> identity()
+			constexpr static MatrixMxN<M, N> identity()
 			{
 				static_assert(M == N, "Matrix is not square!");
-				MatrixMxN<M, N> result;
-				for (size_t i = 0; i < M; ++i) result[i * N + i] = 1.0;
+				MatrixMxN<M, N> result{};
+				for (size_t i = 0; i < M; ++i) result(i, i) = 1.0;
 				return result;
 			}
 		};
 
-		template<size_t rows, size_t cols>
-		MatrixMxN<cols, rows> transpose(const MatrixMxN<rows, cols>& matrix)
+		template<size_t M, size_t N>
+		constexpr MatrixMxN<N, M> transpose(const MatrixMxN<M, N>& matrix)
 		{
-			MatrixMxN<cols, rows> result;
-			for (size_t m = 0; m < rows; ++m) {
-				for (size_t n = 0; n < cols; ++n)
+			MatrixMxN<N, M> result;
+			for (size_t m = 0; m < M; ++m) {
+				for (size_t n = 0; n < N; ++n)
 					result(n, m) = matrix(m, n);
 			}
 			return result;
 		}
 		template<size_t dim>
-		MatrixMxN<dim, dim> inverse(const MatrixMxN<dim, dim>& matrix)
+		constexpr MatrixMxN<dim, dim> inverse(const MatrixMxN<dim, dim>& matrix)
 		{
+			const double zero{ 1e-20 };
 			auto result{ matrix };
 			double pivot;// , det{ 1 };
-			for (size_t k = 0; k < dim; ++k) {
+			size_t descent[dim];
+			size_t k;
+			for (size_t m = 0; m < dim; ++m) descent[m] = m;
+			for (size_t i = 0; i < dim; ++i) {
+				k = descent[i];
 				pivot = result(k, k);
 				//det *= pivot;
-				if (std::abs(pivot) < 1e-16)
-					throw std::runtime_error("Degenerate matrix!");
-				for (size_t m = 0; m < dim; ++m)
-					result(m, k) = -result(m, k) / pivot;
+				if (abs(pivot) < zero) {
+					if (i < dim - 1) {
+						std::swap(descent[i], descent[i + 1]);
+						k = descent[i];
+						pivot = result(k, k);
+					}
+					else throw std::runtime_error("Degenerate matrix!");
+				}
+				for (size_t m = 0; m < dim; ++m) result(m, k) /= -pivot;
 				for (size_t m = 0; m < dim; ++m) {
 					if (m != k) {
 						for (size_t n = 0; n < dim; ++n) {
@@ -245,14 +256,14 @@ namespace general
 			size_t imax;
 			for (size_t i = 0; i < dim; ++i) P[i] = i;
 			for (size_t m = 0; m < dim - 1; ++m) {
-				buf = std::abs(U(m, m));
+				buf = abs(U(m, m));
 				imax = m;
 				for (size_t i = m + 1; i < dim; ++i)
 					if ((absv = std::abs(U(i, m))) > buf) {
 						buf = absv;
 						imax = i;
 					}
-				if (buf < 1e-16) throw std::runtime_error("MatrixFix is degenerate!");
+				if (buf < 1e-20) throw std::runtime_error("Matrix is degenerate!");
 				if (imax != m) {
 					for (size_t n = m; n < dim; ++n) std::swap(U(m, n), U(imax, n));
 					for (size_t n = 0; n < m; ++n) std::swap(L(m, n), L(imax, n));
@@ -283,16 +294,24 @@ namespace general
 		Vec<dim> solve(const MatrixMxN<dim, dim>& A, const Vec<dim>& B)
 		{
 			double div{ 1 }, pivot, buf;
-			MatrixMxN<dim, dim + 1> D;
+			MatrixMxN<dim, dim + 1> D{};
+			size_t descent[dim];
 			for (size_t m = 0; m < dim; ++m) {
 				for (size_t n = 0; n < dim; ++n)
 					D(m, n) = A(m, n);
 				D(m, dim) = B[m];
+				descent[m] = m;
 			}
-			for (size_t k = 0; k < dim; ++k) {
+			for (size_t k : descent) {
 				pivot = D(k, k);
-				if (std::abs(pivot) < 1e-16)
-					throw std::runtime_error("Degenerate MatrixFix!");
+				if (abs(pivot) < 1e-20) {
+					if (k != dim - 1) {
+						std::swap(descent[k], descent[k + 1]);
+						++k;
+						pivot = result(k, k);
+					}
+					else throw std::runtime_error("Degenerate matrix!");
+				}
 				for (size_t m = 0; m < dim; ++m) {
 					if (m != k) {
 						for (size_t n = 0; n < dim + 1; ++n) {
@@ -309,7 +328,7 @@ namespace general
 			return D.get_column(dim) / D[0];
 		}
 		template<size_t rows, size_t cols>
-		MatrixMxN<rows, cols> AxD(const MatrixMxN<rows, cols>& A, const MatrixMxN<cols, cols>& D)
+		constexpr MatrixMxN<rows, cols> AxD(const MatrixMxN<rows, cols>& A, const MatrixMxN<cols, cols>& D)
 		{
 			auto matrix{ A };
 			for (size_t m = 0; m < rows; ++m)
@@ -318,7 +337,7 @@ namespace general
 			return matrix;
 		}
 		template<size_t rows, size_t cols>
-		MatrixMxN<rows, cols> DxA(const MatrixMxN<rows, cols>& D, const MatrixMxN<rows, cols>& A)
+		constexpr MatrixMxN<rows, cols> DxA(const MatrixMxN<rows, cols>& D, const MatrixMxN<rows, cols>& A)
 		{
 			auto matrix{ A };
 			for (size_t m = 0; m < rows; ++m)
@@ -330,22 +349,22 @@ namespace general
 		void SVD(const MatrixMxN<rows, cols>& A, MatrixMxN<rows, count>& U, MatrixMxN<count, count>& S, MatrixMxN<count, cols>& V)
 		{
 			MatrixMxN<cols, cols> M = transpose(A) * A;
-			Vec<cols> v;
-			MatrixMxN<count, count> Sinv;
+			Vec<cols> v{};
+			MatrixMxN<count, count> Sinv{};
 			double curr, prev, eps = 1e-16;
 			for (size_t i = 0; i < count; ++i) {
 				curr = 2.0;
 				prev = 1.0;
 				for (size_t n = 0; n < cols; ++n) v[n] = 1.0;
-				while (std::abs((curr - prev) / curr) > eps) {
+				while (abs((curr - prev) / curr) > eps) {
 					prev = curr;
 					v = normalize(M * v);
 					curr = v[0];
 				}
 				curr = v * (M * v);
-				// filling the MatrixFix of the eigen vectors
+				// filling the matrix of the eigen vectors
 				V.set_row(i, v);
-				// filling the diagonal MatrixFix
+				// filling the diagonal matrix
 				S(i, i) = std::sqrt(curr);
 				for (size_t m = 0; m < cols; ++m)
 					for (size_t n = 0; n < cols; ++n)
