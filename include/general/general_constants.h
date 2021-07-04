@@ -1,9 +1,8 @@
 #pragma once
 
-namespace general
-{
-    namespace time
-    {
+namespace general {
+    namespace time {
+
         inline constexpr double SEC_PER_MIN{ 60 };
         inline constexpr double SEC_PER_HOUR{ 3600 };
         inline constexpr double SEC_PER_DAY{ 86400 };
@@ -27,8 +26,8 @@ namespace general
         inline constexpr double JD1899{ 2415019.5 };
     }
 
-    namespace math
-    {
+    namespace math {
+
         inline constexpr double PI{ 3.1415926535897932 };
 	    inline constexpr double PI1_2{ PI * 0.5 };
 	    inline constexpr double PI3_2{ PI * 1.5 };

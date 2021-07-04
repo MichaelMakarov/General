@@ -2,29 +2,23 @@ cmake_minimum_required (VERSION 3.8)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(Ballistic)
+project("General")
 
 include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/include/general
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/general"
 )
 
 add_library(
-	General 
+	"General" 
 
-	
-	src/Times.cpp
-	src/Mathematics.cpp
-	  
-	src/Quaternion.cpp
-	src/Vector.cpp 
-	src/Matrix.cpp
-	src/Polynomial.cpp)
+	"src/times.cpp"
 
-add_executable(
-	TestGeneral
-	test/Test.cpp)
+	"src/mathfuncs.cpp"
+	"src/quaternion.cpp"
+	"src/vector.cpp" 
+	"src/matrix.cpp"
+	"src/polynomial.cpp")
 
-target_link_libraries(
-	TestGeneral
-	General
-)
+add_executable("TestGeneral" "test/test.cpp")
+
+target_link_libraries("TestGeneral" "General")

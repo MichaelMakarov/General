@@ -1,4 +1,4 @@
-#include "Times.h"
+#include "times.h"
 #include <iomanip>
 #include <cmath>
 
@@ -8,38 +8,36 @@ namespace general
 	{
 		const char zero = '0';
 
-		std::ostream& operator << (std::ostream& o, const Date& d)
+		std::ostream& operator << (std::ostream& o, const date& d)
 		{
-			o << std::setw(4) << d._year << '/' << 
+			return o << 
+				std::setfill(zero) << std::setw(4) << d._year << '/' << 
 				std::setfill(zero) << std::setw(2) << d._month << '/' << 
 				std::setfill(zero) << std::setw(2) << d._day;
-			return o;
 		}
-		std::istream& operator >> (std::istream& i, Date& d)
+		std::istream& operator >> (std::istream& i, date& d)
 		{
-			i >> d._year >> d._month >> d._day;
-			return i;
+			return i >> d._year >> d._month >> d._day;
 		}
 
 
-		std::ostream& operator << (std::ostream& o, const Time& t)
+		std::ostream& operator << (std::ostream& o, const time& t)
 		{
 			double integ, decim;
 			decim = std::modf(std::round(t._second * 1e3 + t._millisec) * 1e-3, &integ);
-			o << std::setfill(zero) << std::setw(2) << t._hour << ':' <<
+			return o << 
+				std::setfill(zero) << std::setw(2) << t._hour << ':' <<
 				std::setfill(zero) << std::setw(2) << t._minute << ':' <<
 				std::setfill(zero) << std::setw(2) << integ << '.' <<
 				std::setfill(zero) << std::setw(3) << decim * 1e3;
-			return o;
 		}
 
-		std::ostream& operator << (std::ostream& o, const DateTime& d)
+		std::ostream& operator << (std::ostream& o, const datetime& d)
 		{
-			o << d._date << ' ' << d._time;
-			return o;
+			return o << d._date << ' ' << d._time;
 		}
 
-		DateTime datetime_from_str(const std::string& str, const std::string& format)
+		datetime datetime_from_str(const std::string& str, const std::string& format)
 		{
 			char separators[6]{ 0 };
 			auto get_index = [](const char symbol) {
@@ -75,7 +73,7 @@ namespace general
 			}
 			if (buf.size() != 0) data[indices[index]] = std::atoi(buf.c_str()); 
 			if (indices[index] == 6) value = buf.size();
-			return DateTime(
+			return datetime(
 				data[0],
 				static_cast<ushort>(data[1]),
 				static_cast<ushort>(data[2]),
@@ -86,11 +84,11 @@ namespace general
 			);
 		}
 
-		DateTime DateTime::now()
+		datetime datetime::now()
 		{
 			auto time{ std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()) };
 			auto t = std::localtime(&time);
-			return DateTime(
+			return datetime(
 				size_t(1900) + static_cast<size_t>(t->tm_year), 
 				static_cast<unsigned short>(t->tm_mon + 1), 
 				static_cast<unsigned short>(t->tm_mday), 
@@ -163,15 +161,15 @@ namespace general
 			return ostr;
 		}
 
-		void Stopwatch::start()
+		void stopwatch::start()
 		{
 			_finish = _start = std::chrono::high_resolution_clock::now();
 		}
-		void Stopwatch::finish()
+		void stopwatch::finish()
 		{
 			_finish = std::chrono::high_resolution_clock::now();
 		}
-		double Stopwatch::duration() const
+		double stopwatch::duration() const
 		{
 			return std::chrono::duration<double, std::nano>(_finish - _start).count() * 1e-9;
 		}

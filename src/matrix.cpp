@@ -1,10 +1,9 @@
-#include "Matrix.h"
+#include "matrix.h"
 
-namespace general
-{
-	namespace math
-	{
-		Matrix::Matrix(const size_t rows, const size_t cols, const std::initializer_list<double>& list)
+namespace general {
+	namespace math	{
+
+		matrix::matrix(const size_t rows, const size_t cols, const std::initializer_list<double>& list)
 		{
 			if (rows * cols == list.size()) {
 				_rows = rows;
@@ -13,7 +12,7 @@ namespace general
 			}
 			throw std::invalid_argument("Invalid initializer list size!");
 		}
-		Matrix::Matrix(const size_t rows, const size_t cols, const std::vector<double>& vec)
+		matrix::matrix(const size_t rows, const size_t cols, const std::vector<double>& vec)
 		{
 			if (rows * cols == vec.size()) {
 				_rows = rows;
@@ -22,14 +21,14 @@ namespace general
 			}
 			throw std::invalid_argument("Invalid vector size!");
 		}
-		Matrix::Matrix(Matrix&& m) noexcept
+		matrix::matrix(matrix&& m) noexcept
 		{
 			_data = std::move(m._data);
 			_rows = std::move(m._rows);
 			_cols = std::move(m._cols);
 		}
 
-		Matrix& Matrix::operator = (Matrix&& m) noexcept
+		matrix& matrix::operator = (matrix&& m) noexcept
 		{
 			_data = std::move(m._data);
 			_rows = std::move(m._rows);
@@ -37,21 +36,21 @@ namespace general
 			return *this;
 		}
 
-		Vector Matrix::get_row(const size_t index) const
+		vector matrix::get_row(const size_t index) const
 		{
-			auto row{ Vector(_cols) };
+			auto row{ vector(_cols) };
 			for (size_t i = 0; i < _cols; ++i)
 				row[i] = _data[index * _cols + i];
 			return row;
 		}
-		Vector Matrix::get_column(const size_t index) const
+		vector matrix::get_column(const size_t index) const
 		{
-			auto column{ Vector(_rows) };
+			auto column{ vector(_rows) };
 			for (size_t i = 0; i < _rows; ++i)
 				column[i] = _data[i * _cols + index];
 			return column;
 		}
-		void Matrix::set_row(const size_t index, const Vector& row)
+		void matrix::set_row(const size_t index, const vector& row)
 		{
 			if (_cols == row.size()) {
 				for (size_t i = 0; i < _cols; ++i)
@@ -59,7 +58,7 @@ namespace general
 			}
 			throw std::invalid_argument("Invalid row size!");
 		}
-		void Matrix::set_column(const size_t index, const Vector& column)
+		void matrix::set_column(const size_t index, const vector& column)
 		{
 			if (_rows == column.size()) {
 				for (size_t i = 0; i < _rows; ++i)
@@ -68,7 +67,7 @@ namespace general
 			throw std::invalid_argument("Invalid column size!");
 		}
 
-		Matrix& Matrix::operator += (const Matrix& m)
+		matrix& matrix::operator += (const matrix& m)
 		{
 			if (_rows == m._rows && _cols == m._cols) {
 				for (size_t i = 0; i < _data.size(); ++i)
@@ -77,7 +76,7 @@ namespace general
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		Matrix& Matrix::operator -= (const Matrix& m)
+		matrix& matrix::operator -= (const matrix& m)
 		{
 			if (_rows == m._rows && _cols == m._cols) {
 				for (size_t i = 0; i < _data.size(); ++i)
@@ -86,43 +85,43 @@ namespace general
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		Matrix& Matrix::operator *= (const double v)
+		matrix& matrix::operator *= (const double v)
 		{
 			for (size_t i = 0; i < _data.size(); ++i)
 				_data[i] *= v;;
 			return *this;
 		}
-		Matrix& Matrix::operator /= (const double v)
+		matrix& matrix::operator /= (const double v)
 		{
 			for (size_t i = 0; i < _data.size(); ++i)
 				_data[i] /= v;;
 			return *this;
 		}
 
-		Matrix operator + (const Matrix& f, const Matrix& s)
+		matrix operator + (const matrix& f, const matrix& s)
 		{
 			if (f._rows == s._rows && f._cols == s._cols) {
-				auto m{ Matrix(f._rows, f._cols) };
+				auto m{ matrix(f._rows, f._cols) };
 				for (size_t i = 0; i < f._data.size(); ++i)
 					m._data[i] = f._data[i] + s._data[i];
 				return m;
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		Matrix operator - (const Matrix& f, const Matrix& s)
+		matrix operator - (const matrix& f, const matrix& s)
 		{
 			if (f._rows == s._rows && f._cols == s._cols) {
-				auto m{ Matrix(f._rows, f._cols) };
+				auto m{ matrix(f._rows, f._cols) };
 				for (size_t i = 0; i < f._data.size(); ++i)
 					m._data[i] = f._data[i] - s._data[i];
 				return m;
 			}
 			throw std::invalid_argument("Matrices' dimensions differ!");
 		}
-		Matrix operator * (const Matrix & f, const Matrix & s)
+		matrix operator * (const matrix & f, const matrix & s)
 		{
 			if (f._cols == s._rows) {
-				auto result{ Matrix(f._rows, s._cols) };
+				auto result{ matrix(f._rows, s._cols) };
 				for (size_t m = 0; m < f._rows; ++m)
 					for (size_t k = 0; k < f._cols; ++k)
 						for (size_t n = 0; n < s._cols; ++n)
@@ -131,39 +130,39 @@ namespace general
 			}
 			throw std::invalid_argument("Inconsistent matrices!");
 		}
-		Vector operator * (const Matrix& matrix, const Vector& vec)
+		vector operator * (const matrix& matrix, const vector& vec)
 		{
 			if (matrix._cols != vec.size())
 				throw std::invalid_argument("Incompatible matrix and vector!");
-			auto result{ Vector(matrix._rows) };
+			auto result{ vector(matrix._rows) };
 			for (size_t m = 0; m < matrix._rows; ++m)
 				for (size_t n = 0; n < matrix._cols; ++n)
 					result[m] += matrix(m, n) * vec[n];
 			return result;
 		}
-		Matrix operator / (const Matrix& m, const double v)
+		matrix operator / (const matrix& m, const double v)
 		{
-			auto result{ Matrix(m) };
+			auto result = matrix(m);
 			for (size_t i = 0; i < result._data.size(); ++i)
 				result._data[i] /= v;
 			return result;
 		}
-		Matrix operator * (const Matrix& m, const double v)
+		matrix operator * (const matrix& m, const double v)
 		{
-			auto result{ Matrix(m) };
+			auto result{ matrix(m) };
 			for (size_t i = 0; i < result._data.size(); ++i)
 				result._data[i] *= v;
 			return result;
 		}
-		Matrix operator * (const double v, const Matrix& m)
+		matrix operator * (const double v, const matrix& m)
 		{
-			auto result{ Matrix(m) };
+			auto result{ matrix(m) };
 			for (size_t i = 0; i < result._data.size(); ++i)
 				result._data[i] *= v;
 			return result;
 		}
 
-		std::ostream& operator << (std::ostream& os, const Matrix& matrix)
+		std::ostream& operator << (std::ostream& os, const matrix& matrix)
 		{
 			os << "{ ";
 			for (size_t m = 0; m < matrix._rows; ++m) {
@@ -175,30 +174,30 @@ namespace general
 			os << "}";
 			return os;
 		}
-		std::istream& operator << (std::istream& is, Matrix& m) 
+		std::istream& operator << (std::istream& is, matrix& m) 
 		{
 			for (size_t i = 0; i < m._data.size(); ++i)
 				is >> m._data[i];
 			return is;
 		}
 
-		static Matrix identity(const size_t dim)
+		static matrix identity(const size_t dim)
 		{
-			auto m{ Matrix(dim, dim) };
+			auto m{ matrix(dim, dim) };
 			for (size_t i = 0; i < dim; ++i)
 				m(i, i) = 1.0;
 			return m;
 		}
 
-		Matrix transpose(const Matrix& matrix)
+		matrix transpose(const matrix& init)
 		{
-			auto result{ Matrix(matrix._cols, matrix._rows) };
-			for (size_t m = 0; m < matrix._rows; ++m)
-				for (size_t n = 0; n < matrix._cols; ++n)
-					result(n, m) = matrix(m, n);
+			auto result{ matrix(init._cols, init._rows) };
+			for (size_t m = 0; m < init._rows; ++m)
+				for (size_t n = 0; n < init._cols; ++n)
+					result(n, m) = init(m, n);
 			return result;
 		}
-		Matrix inverse(const Matrix& matrix)
+		matrix inverse(const matrix& matrix)
 		{
 			if (matrix._rows != matrix._cols)
 				throw std::invalid_argument("Matrix is not square!");
@@ -222,11 +221,11 @@ namespace general
 			}
 			return result;
 		}
-		void LU(const Matrix& A, Matrix& L, Matrix& U)
+		void LU(const matrix& A, matrix& L, matrix& U)
 		{
 			if (A._rows != A._cols) 
 				throw std::invalid_argument("Matrix is not square!");
-			U = L = Matrix(A._rows, A._cols);
+			U = L = matrix(A._rows, A._cols);
 			double sum;
 			for (size_t m = 0; m < A._rows; ++m) {
 				for (size_t n = 0; n < A._cols; ++n) {
@@ -245,12 +244,12 @@ namespace general
 				L(m, m) = 1.0;
 			}
 		}
-		void PLU(const Matrix& A, Matrix& L, Matrix& U, std::vector<size_t>& P, size_t& k)
+		void PLU(const matrix& A, matrix& L, matrix& U, std::vector<size_t>& P, size_t& k)
 		{
 			if (A._rows != A._cols) 
 				throw std::invalid_argument("Matrix is not square!");
 			k = 0;
-			L = U = Matrix(A._rows, A._cols);
+			L = U = matrix(A._rows, A._cols);
 			P = std::vector<size_t>(A._rows);
 			double buf, absv;
 			size_t imax;
@@ -278,12 +277,12 @@ namespace general
 				}
 			}
 		}
-		void QR(const Matrix& A, Matrix& Q, Matrix& R)
+		void QR(const matrix& A, matrix& Q, matrix& R)
 		{
 			if (A._rows != A._cols)
 				throw std::invalid_argument("Matrix is not square!");
-			Q = Matrix(A._rows, A._cols);
-			auto vecs = std::vector<Vector>(A._cols);
+			Q = matrix(A._rows, A._cols);
+			auto vecs = std::vector<vector>(A._cols);
 			for (size_t n = 0; n < A._cols; ++n) {
 				auto vec = vecs[n] = A.get_column(n);
 				// Gramme-Shmidte orthogonalization
@@ -293,14 +292,14 @@ namespace general
 			}
 			R = transpose(Q) * A;
 		}
-		Vector solve(const Matrix& A, const Vector& B)
+		vector solve(const matrix& A, const vector& B)
 		{
 			if (A._rows != A._cols)
 				throw std::invalid_argument("Matrix is not square!");
 			if (A._rows != B.size())
 				throw std::invalid_argument("Incompatible matrix and vector!");
 			double div{ 1 }, pivot;
-			auto D{ Matrix(A._rows, A._cols + 1) };
+			auto D{ matrix(A._rows, A._cols + 1) };
 			for (size_t m = 0; m < A._rows; ++m) {
 				for (size_t n = 0; n < A._cols; ++n)
 					D(m, n) = A(m, n);
@@ -325,7 +324,7 @@ namespace general
 			}
 			return D.get_column(A._cols) / D(0, 0);
 		}
-		Matrix AxD(const Matrix& A, const Matrix& D)
+		matrix AxD(const matrix& A, const matrix& D)
 		{
 			if (A._cols != D._rows)
 				throw std::invalid_argument("Incompatible matrices!");
@@ -335,7 +334,7 @@ namespace general
 					matrix(m, n) *= D(n, n);
 			return matrix;
 		}
-		Matrix DxA(const Matrix& D, const Matrix& A)
+		matrix DxA(const matrix& D, const matrix& A)
 		{
 			if (A._cols != D._rows)
 				throw std::invalid_argument("Incompatible matrices!");
@@ -345,12 +344,12 @@ namespace general
 					matrix(m, n) *= D(m, m);
 			return matrix;
 		}
-		void SVD(const Matrix& A, Matrix& U, Matrix& s, Matrix& V)
+		void SVD(const matrix& A, matrix& U, matrix& s, matrix& V)
 		{
-			V = Matrix(A._cols, A._cols);
-			auto Sinv = s = Matrix(A._cols, A._cols);
+			V = matrix(A._cols, A._cols);
+			auto Sinv = s = matrix(A._cols, A._cols);
 			auto M = transpose(A) * A;
-			Vector v(M._rows);
+			vector v(M._rows);
 			double curr, prev, eps = 1e-16;
 			for (size_t i = 0; i < M._rows; ++i) {
 				curr = 2.0;

@@ -1,9 +1,9 @@
-#include "Times.h"
-#include "GeneralConstants.h"
-#include "Polynomial.h"
-#include "Matrix.h"
-#include "Quaternion.h"
-#include "Mathematics.h"
+#include "times.h"
+#include "general_constants.h"
+#include "polynomial.h"
+#include "matrix.h"
+#include "quaternion.h"
+#include "mathfuncs.h"
 #include <iostream>
 
 using namespace general::time;
@@ -35,12 +35,12 @@ void test_datetime()
 {
 	std::cout << "\n...Time tests...\n";
 
-	constexpr DateTime dt0;
-	constexpr auto dt1{ DateTime(2000, 1, 3, 23, 23, 23, 423) };
-	constexpr auto dt2{ DateTime(2000, 1, 3, 0, 0, 1, 0) };
-	constexpr auto dt3{ DateTime(2013, 12, 23, 1, 56, 34, 100) };
-	constexpr auto dt4{ DateTime(2013, 12, 23, 11, 5, 7, 0) };
-	constexpr auto dt5{ DateTime(2013, 12, 23, 20, 23, 19, 0) };
+	constexpr datetime dt0;
+	constexpr auto dt1{ datetime(2000, 1, 3, 23, 23, 23, 423) };
+	constexpr auto dt2{ datetime(2000, 1, 3, 0, 0, 1, 0) };
+	constexpr auto dt3{ datetime(2013, 12, 23, 1, 56, 34, 100) };
+	constexpr auto dt4{ datetime(2013, 12, 23, 11, 5, 7, 0) };
+	constexpr auto dt5{ datetime(2013, 12, 23, 20, 23, 19, 0) };
 
 	std::cout << "dt0: " << dt0 << std::endl;
 	std::cout << "dt1: " << dt1 << std::endl;
@@ -85,9 +85,9 @@ void test_legendre()
 {
 	std::cout << "\n...Legendre polynoms tests...\n";
 
-	auto p1{ LegendrePolynomial(3) };
-	auto p2{ LegendrePolynomial(10) };
-	auto p3{ LegendrePolynomial(15) };
+	auto p1{ legendre_polynomial(3) };
+	auto p2{ legendre_polynomial(10) };
+	auto p3{ legendre_polynomial(15) };
 	
 	double v1 = -0.5, v2 = 0.5;
 
@@ -102,11 +102,11 @@ void test_legendre()
 
 	std::cout << "...Legendre functions tests...\n";
 
-	auto f1{ LegendreFunction(3, 1) };
-	auto f2{ LegendreFunction(10, 5) };
-	auto f3{ LegendreFunction(15, 0) };
-	auto f4{ LegendreFunction(3, 2) };
-	auto f5{ LegendreFunction(4, 4) };
+	auto f1{ legendre_function(3, 1) };
+	auto f2{ legendre_function(10, 5) };
+	auto f3{ legendre_function(15, 0) };
+	auto f4{ legendre_function(3, 2) };
+	auto f5{ legendre_function(4, 4) };
 
 	std::cout << "P3_1(" << v1 << ") = " << f1(v1) << std::endl;
 	std::cout << "P10_5(" << v1 << ") = " << f2(v1) << std::endl;
@@ -139,7 +139,7 @@ void test_newtonian()
 
 	const double x[]{ 1.0, 2.0, 3.0, 4.0, 5.0 };
 	const double y[]{ 0.5, -0.6, 0.52, 3.4, 8.4999 };
-	auto poly{ NewtonianPolynomial(x, y) };
+	auto poly{ newtonian_polynomial(x, y) };
 	double arg{ x[0] };
 	while (arg <= x[4]) {
 		std::cout << "P(" << arg << ") = " << poly(arg) << "; ";
@@ -160,17 +160,17 @@ void test_matrix3()
 	std::cout << "\n...Matrix tests...\n";
 
 	constexpr const double a[3]{ 0.212340538, 0.590533136, 0.911412040 };
-	constexpr Matrix3x3 m1;
-	constexpr Matrix3x3 m2{ { { 1, 2, 3 }, { 1, 2, 4 }, { 3, 2, 1 } } };
-	constexpr auto m3{ inverse(m2) };
-	constexpr Matrix3x3 m4{ Matrix3x3::identity() };
-	constexpr Matrix3x3 m5{ 
+	constexpr matrix3x3 m1;
+	constexpr matrix3x3 m2{ { { 1, 2, 3 }, { 1, 2, 4 }, { 3, 2, 1 } } };
+	constexpr auto m3 = inverse(m2);
+	constexpr matrix3x3 m4{ matrix3x3::identity() };
+	constexpr matrix3x3 m5{ 
 		{ { a[0], a[0] * a[0], a[0] * a[0] * a[0] },
 		  { a[1], a[1] * a[1], a[1] * a[1] * a[1] },
 		  { a[2], a[2] * a[2], a[2] * a[2] * a[2] } }
 	};
 	constexpr auto m6{ inverse(m5) };
-	constexpr Matrix3x3 m7{ { {2, 1, 3 }, { 1, 3, -3 }, { -2, 4, 4 } } };
+	constexpr matrix3x3 m7{ { {2, 1, 3 }, { 1, 3, -3 }, { -2, 4, 4 } } };
 	constexpr auto m8 = inverse(m7);
 	constexpr auto m9 = transpose(m7);
 	constexpr auto m10 = m8 * m7;
@@ -196,42 +196,45 @@ void test_matrix3()
 
 void test_vector()
 {
-	std::cout << "\n...Vector tests...\n";
+	std::cout << "\n...vector tests...\n";
 
-	constexpr Vec<5> vec1;
-	constexpr auto vec2{ Vec<10>() };
-	constexpr auto vec3 = Vec<7>{ 2.3, -0.1, 9.8, 12.0, 4.3, -1.5, 0.9 };
-	constexpr Vec<9> vec4{ 5, 5, 5, 5, 5, 1, 1, 1, 2 };
-	constexpr Vec3 vec7{ 3.4, 0.9, 1.2 };
-	Vec<4> vec8{ 4, 5, 6, 7 };
-	Vec<4> vec9{}, vec10{};
-	vec9 = std::move(vec8);
-	vec10 = vec9;
+	constexpr vec<5> v1;
+	constexpr vec<10> v2;
+	constexpr vec<7> v3{ 2.3, -0.1, 9.8, 12.0, 4.3, -1.5, 0.9 };
+	constexpr vec<9> v4{ 5, 5, 5, 5, 5, 1, 1, 1, 2 };
+	constexpr vec3 v5{ 3.4, 0.9, 1.2 };
+	vec<4> v6{ 4, 5, 6, 7 };
+	vec<4> v7, v8;
+	v7 = std::move(v6);
+	v8 = v7;
+	constexpr vec<3> v9{ 1, 2, 3 }, v10{ 4, -5 };
+	constexpr double mult = v9 * v10;
 
-	std::cout << "empty vector of size 5: " << vec1 << std::endl;
-	std::cout << "empty vector of size 10: " << vec2 << std::endl;
-	std::cout << "vector 3: " << vec3 << std::endl;
-	std::cout << "vector 4: " << vec4 << std::endl;
-	std::cout << "vector 7: " << vec7 << std::endl;
-
-	std::cout << "vector 2 length = " << vec2.length() << std::endl;
-	std::cout << "vector 3 length = " << vec3.length() << std::endl;
-
+	std::cout << "empty vector of size " << v1.size() << ": " << v1 << "; length = " << v1.length() << std::endl;
+	std::cout << "empty vector of size " << v2.size() << ": " << v2 << "; length = " << v2.length() << std::endl;
+	std::cout << "initialized vector of size 7: " << v3 << "; length = " << v3.length() << std::endl;
+	std::cout << "initialized vector of size 9: " << v4 << "; length = " << v4.length() << std::endl;
+	std::cout << "initialized vector of size 3: " << v5 << "; length = " << v5.length() << std::endl;
+	std::cout << "initialized vector of size 3: " << v6 << "; length = " << v6.length() << std::endl;
+	std::cout << "initialized vector of size 3: " << v7 << "; length = " << v7.length() << std::endl;
+	std::cout << "initialized vector of size 3: " << v8 << "; length = " << v8.length() << std::endl;
+	std::cout << "initialized vector of size 3: " << v9 << "; length = " << v8.length() << std::endl;
+	std::cout << v9 << " * " << v10 << " = " << mult << std::endl;
 }
 
 void test_matrix()
 {
 	std::cout << "\n...Matrix tests...\n";
 
-	constexpr MatrixMxN<3, 3> m1;
-	constexpr MatrixMxN<5, 4> m2;
-	constexpr MatrixMxN<3, 3> m3{ { { 4.0, 5.0, -1.0 }, { -5.6, 10.0, 2.34 }, { -0.31, 3.33, -9.0 } } };
-	constexpr MatrixMxN<2, 5> m4{ { { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 0 } } };
+	constexpr matrix_mxn<3, 3> m1;
+	constexpr matrix_mxn<5, 4> m2;
+	constexpr matrix_mxn<3, 3> m3{ { { 4.0, 5.0, -1.0 }, { -5.6, 10.0, 2.34 }, { -0.31, 3.33, -9.0 } } };
+	constexpr matrix_mxn<2, 5> m4{ { { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 0 } } };
 	constexpr auto m5{ m3 };
-	constexpr Vec<5> v{ 2, -1, 0, 0, 3 };
+	constexpr vec<5> v{ 2, -1, 0, 0, 3 };
 	const double n{ 0.5 };
-	constexpr auto m6 = MatrixMxN<4, 4>::identity();
-	constexpr MatrixMxN<3, 3> m7{ { { 2, 1, 3 }, { 1, 3, -3 }, { -2, 4, 4 } } };
+	constexpr auto m6 = matrix_mxn<4, 4>::identity();
+	constexpr matrix_mxn<3, 3> m7{ { { 2, 1, 3 }, { 1, 3, -3 }, { -2, 4, 4 } } };
 	constexpr auto m8{ inverse(m7) };
 	constexpr auto row1 = m8.get_row(1);
 
@@ -256,13 +259,13 @@ void test_quaternion()
 {
 	std::cout << "\n...Quaternion tests...\n";
 
-	constexpr const Quaternion q1{ 2.0, 3, -1, 0 };
-	constexpr const Quaternion q2{ 1, -3, 0, 0 };
-	constexpr Vec3 v1{ 1,2,3 }, v2{ 4,3,2 };
-	constexpr Quaternion q3 = conj(q1);
-	constexpr Quaternion q4{ 1, 2, 3, 4 };
-	constexpr Quaternion q5{ 0, cross(v1, v2) };
-	constexpr Quaternion q6 = q1 * q2;
+	constexpr const quaternion q1{ 2.0, 3, -1, 0 };
+	constexpr const quaternion q2{ 1, -3, 0, 0 };
+	constexpr vec3 v1{ 1,2,3 }, v2{ 4,3,2 };
+	constexpr quaternion q3 = conj(q1);
+	constexpr quaternion q4{ 1, 2, 3, 4 };
+	constexpr quaternion q5{ 0, cross(v1, v2) };
+	constexpr quaternion q6 = q1 * q2;
 
 	std::cout << "q1: " << q1 << std::endl;
 	std::cout << "q2: " << q2 << std::endl;
@@ -272,15 +275,15 @@ void test_quaternion()
 	std::cout << "q1^-1: " << inv(q1) << std::endl;
 	std::cout << "q2 * 0.5: " << q2 * 0.5 << std::endl;
 
-	constexpr Vec3 v{ 1, 1, 1 };
-	constexpr Vec3 a{ 0, 1, 0 };
+	constexpr vec3 v{ 1, 1, 1 };
+	constexpr vec3 a{ 0, 1, 0 };
 	constexpr auto t{ 45 };
 	std::cout << "v: " << v << std::endl;
 	std::cout << "a: " << a << std::endl;
 	std::cout << v << " rotation around " << a << " by angle " << t << ": " << rotate_vector(v, a, deg_to_rad(t)) << std::endl;
 
 	double sint{ std::sin(deg_to_rad(t)) }, cost{ std::cos(deg_to_rad(t)) };
-	Matrix3x3 m{ { {cost, sint, 0 },  { -sint, cost, 0 }, { 0, 0, 1 } } };
+	matrix3x3 m{ { {cost, sint, 0 },  { -sint, cost, 0 }, { 0, 0, 1 } } };
 	auto q = quaternion_from_matrix(m);
 	std::cout << "initial matrix: " << m << std::endl;
 	std::cout << "quaternion from matrix: " << q << std::endl;
@@ -299,7 +302,7 @@ public:
 	}
 
 };
-std::vector<double> calc_signal(const std::vector<Complex>& params, const double period) {
+std::vector<double> calc_signal(const std::vector<complex>& params, const double period) {
 	auto signals = std::vector<Signal>(params.size());
 	for (size_t i{}; i < params.size(); ++i) {
 		signals[i] = Signal(params[i].mod(), i / period, params[i].arg());
@@ -307,7 +310,7 @@ std::vector<double> calc_signal(const std::vector<Complex>& params, const double
 	auto result = std::vector<double>(params.size());
 	for (size_t i{}; i < params.size(); ++i) {
 		for (size_t k{}; k < result.size(); ++k) {
-			result[i] += signals[k](k);
+			result[i] += signals[k](static_cast<double>(k));
 		}
 	}
 	return result;
@@ -316,23 +319,24 @@ std::vector<double> calc_signal(const std::vector<Complex>& params, const double
 void test_complex() {
 	std::cout << "\n...complex numbers test...\n";
 
-	constexpr Complex c1;
-	constexpr Complex c2{ 2, -3 };
-	constexpr Complex c3 = c2 * conj(c2);
-	constexpr Complex c4{ -1, 2 };
-	constexpr Complex c5 = c2 / c4;
-	constexpr Complex c6 = c5 * 4.0;
-	Complex c7; c7 = 8.8;
+	constexpr complex c1;
+	constexpr complex c2{ 2, -3 };
+	constexpr complex c3 = c2 * conj(c2);
+	constexpr complex c4{ -1, 2 };
+	constexpr complex c5 = c2 / c4;
+	constexpr complex c6 = c5 * 4.0;
+	complex c7; c7 = 8.8;
 	const auto c8 = asin(c2);
-	constexpr Complex c9 = Complex::i() * Complex::i();
-	constexpr Complex c10 = zhukovskiy(c2);
-	constexpr Complex c11 = -c10;
-	constexpr Complex c12 = dlo(c11);
-	constexpr Complex c13 = -Complex::i();
-	const Complex c14 = log(c13);
-	constexpr Complex c15 = 15;
+	constexpr complex c9 = complex::i() * complex::i();
+	constexpr complex c10 = zhukovskiy(c2);
+	constexpr complex c11 = -c10;
+	constexpr complex c12 = dlo(c11);
+	constexpr complex c13 = -complex::i();
+	const complex c14 = log(c13);
+	constexpr complex c15 = 15;
 
-	std::cout << c1 << std::endl <<
+	std::cout << 
+		c1 << std::endl <<
 		c2 << std::endl <<
 		c3 << std::endl <<
 		c4 << std::endl <<

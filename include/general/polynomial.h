@@ -1,16 +1,13 @@
 #pragma once
-#include "Matrix.h"
-#include <functional>
+#include "matrix.h"
 
-namespace general
-{
-	namespace math
-	{
+namespace general {
+	namespace math {
+
 		/// <summary>
 		/// Class represents a polynom as a single variable function
 		/// </summary>
-		template <size_t N> class PowerPolynomial
-		{
+		template <size_t N> class power_polynomial {
 		public:
 			/// <summary>
 			/// coefficients of the polynomial
@@ -42,11 +39,10 @@ namespace general
 		/// <param name="y">values of the function</param>
 		/// <returns>approximating polynomial</returns>
 		template<size_t degree, class Container> 
-		PowerPolynomial<degree> lstsq(const Container& x, const Container& y)
-		{
-			auto A{ Matrix(x.size(), degree + 1) };
-			auto B{ Vector(y) };
-			PowerPolynomial<degree> poly;
+		power_polynomial<degree> lstsq(const Container& x, const Container& y) {
+			auto A{ matrix(x.size(), degree + 1) };
+			auto B{ vector(y) };
+			power_polynomial<degree> poly;
 			size_t i{ 0 };
 			for (const auto& elem : x) {
 				A(i, 0) = 1.0;
@@ -58,7 +54,7 @@ namespace general
 			for (const auto& elem : y) B[i++] = elem;
 			const auto AT = transpose(A);
 			const auto M{ AT * A };
-			auto D{ Matrix(M.rows(), M.columns()) };
+			auto D{ matrix(M.rows(), M.columns()) };
 			for (i = 0; i < M.rows(); ++i) D(i, i) = 1 / std::sqrt(M(i, i));
 			auto c = DxA(D, AxD(inverse(DxA(D, AxD(M, D))), D)) * AT * B;
 			for (i = 0; i < degree + 1; ++i) poly[i] = c[i];
@@ -72,11 +68,10 @@ namespace general
 		/// <param name="x">variable values</param>
 		/// <param name="y">values of the function</param>
 		/// <returns>approximating polynomial</returns>
-		template<size_t degree, size_t size> PowerPolynomial<degree> lstsq(const double(&x)[size], const double(&y)[size])
-		{
-			Vec<size> B;
-			PowerPolynomial<degree> poly;
-			MatrixMxN<size, degree + 1> A;
+		template<size_t degree, size_t size> power_polynomial<degree> lstsq(const double(&x)[size], const double(&y)[size]) {
+			vec<size> B;
+			power_polynomial<degree> poly;
+			matrix_mxn<size, degree + 1> A;
 			for (size_t i{ 0 }; i < size; ++i) {
 				A(i, 0) = 1.0;
 				for (size_t k{ 0 }; k < degree; ++k)
@@ -85,7 +80,7 @@ namespace general
 			} 
 			const auto At = transpose(A);
 			const auto M{ At * A };
-			MatrixMxN<degree + 1, degree + 1> D;
+			matrix_mxn<degree + 1, degree + 1> D;
 			for (size_t i{ 0 }; i < M.rows(); ++i) D(i, i) = 1 / std::sqrt(M(i, i));
 			auto C = DxA(D, AxD(inverse(DxA(D, AxD(M, D))), D)) * At * B;
 			auto c = inverse(At * A) * At * B;
@@ -96,8 +91,7 @@ namespace general
 		/// <summary>
 		/// Class represents Legendre polynomial Pn
 		/// </summary>
-		class LegendrePolynomial
-		{
+		class legendre_polynomial {
 		protected:
 			size_t _degree;
 			bool _normalized;
@@ -108,15 +102,15 @@ namespace general
 			/// </summary>
 			/// <param name="degree"> - a degree</param>
 			/// <param name="normalized"> - a flag whether polynomial is normalized or not</param>
-			LegendrePolynomial(
+			legendre_polynomial(
 				const size_t degree = 0,
 				const bool normalized = false);
-			LegendrePolynomial(const LegendrePolynomial& p) noexcept = default;
-			LegendrePolynomial(LegendrePolynomial&& p) noexcept = default;
-			~LegendrePolynomial() noexcept = default;
+			legendre_polynomial(const legendre_polynomial& p) noexcept = default;
+			legendre_polynomial(legendre_polynomial&& p) noexcept = default;
+			~legendre_polynomial() noexcept = default;
 
-			LegendrePolynomial& operator = (const LegendrePolynomial& p) noexcept = default;
-			LegendrePolynomial& operator = (LegendrePolynomial&& p) noexcept = default;
+			legendre_polynomial& operator = (const legendre_polynomial& p) noexcept = default;
+			legendre_polynomial& operator = (legendre_polynomial&& p) noexcept = default;
 
 			size_t degree() const { return _degree; }
 
@@ -127,7 +121,7 @@ namespace general
 		/// <summary>
 		/// Class represents a Legendre function Pnm
 		/// </summary>
-		class LegendreFunction : public LegendrePolynomial
+		class legendre_function : public legendre_polynomial
 		{
 		private:
 			size_t _derivation;
@@ -139,21 +133,21 @@ namespace general
 			/// <param name="degree"> - a degree of the polynom</param>
 			/// <param name="derivation"> - a derivation of the polynom</param>
 			/// <param name="normalized"> - a flag whether the function is normalized or not</param>
-			LegendreFunction(
+			legendre_function(
 				const size_t degree = 0,
 				const size_t derivation = 0,
 				const bool normalized = false) :
-				LegendrePolynomial(degree, normalized),
+				legendre_polynomial(degree, normalized),
 				_derivation{ derivation }
 			{}
-			LegendreFunction(const LegendrePolynomial& p) noexcept;
-			LegendreFunction(const LegendreFunction& f) noexcept = default;
-			LegendreFunction(LegendreFunction&& f) noexcept = default;
-			~LegendreFunction() noexcept = default;
+			legendre_function(const legendre_polynomial& p) noexcept;
+			legendre_function(const legendre_function& f) noexcept = default;
+			legendre_function(legendre_function&& f) noexcept = default;
+			~legendre_function() noexcept = default;
 
-			LegendreFunction& operator = (const LegendrePolynomial& p) noexcept;
-			LegendreFunction& operator = (const LegendreFunction& f) noexcept = default;
-			LegendreFunction& operator = (LegendreFunction&& f) noexcept = default;
+			legendre_function& operator = (const legendre_polynomial& p) noexcept;
+			legendre_function& operator = (const legendre_function& f) noexcept = default;
+			legendre_function& operator = (legendre_function&& f) noexcept = default;
 
 			size_t derivation() const { return _derivation; }
 
@@ -164,7 +158,7 @@ namespace general
 		/// <summary>
 		/// Class represents Newtonian polynomial
 		/// </summary>
-		class NewtonianPolynomial
+		class newtonian_polynomial
 		{
 		private:
 			std::vector<double> _x;
@@ -194,7 +188,7 @@ namespace general
 			/// </summary>
 			/// <param name="x"></param>
 			/// <param name="y"></param>
-			NewtonianPolynomial(const std::vector<double>& x, std::vector<double>& y) :
+			newtonian_polynomial(const std::vector<double>& x, std::vector<double>& y) :
 				_x{ std::vector<double>(x.size()) }, _c{ std::vector<double>(y.size()) }
 			{
 				if (x.size() != y.size()) 
@@ -207,7 +201,7 @@ namespace general
 			/// </summary>
 			/// <param name="x"></param>
 			/// <param name="y"></param>
-			template<size_t n> NewtonianPolynomial(const double(&x)[n], const double(&y)[n]) : 
+			template<size_t n> newtonian_polynomial(const double(&x)[n], const double(&y)[n]) : 
 				_x{ std::vector<double>(n) }, _c{ std::vector<double>(n) }
 			{
 				std::memcpy(_x.data(), x, sizeof(double) * n);
@@ -218,18 +212,18 @@ namespace general
 			/// </summary>
 			/// <param name="x"></param>
 			/// <param name="y"></param>
-			template<size_t n> NewtonianPolynomial(const std::array<double, n>& x, const std::array<double, n>& y) :
+			template<size_t n> newtonian_polynomial(const std::array<double, n>& x, const std::array<double, n>& y) :
 				_x{ std::vector<double>(n) }, _c{ std::vector<double>(n) }
 			{
 				std::memcpy(_x.data(), x.data(), sizeof(double) * n);
 				calc_coefficients(y.cbegin(), y.cend());
 			}
-			NewtonianPolynomial(const NewtonianPolynomial& p) = default;
-			NewtonianPolynomial(NewtonianPolynomial&& p) noexcept : _x{ std::move(p._x) }, _c{ std::move(_c) } {}
-			~NewtonianPolynomial() = default;
+			newtonian_polynomial(const newtonian_polynomial& p) = default;
+			newtonian_polynomial(newtonian_polynomial&& p) noexcept : _x{ std::move(p._x) }, _c{ std::move(_c) } {}
+			~newtonian_polynomial() = default;
 
-			NewtonianPolynomial& operator = (const NewtonianPolynomial& p) = default;
-			NewtonianPolynomial& operator = (NewtonianPolynomial&& p) noexcept
+			newtonian_polynomial& operator = (const newtonian_polynomial& p) = default;
+			newtonian_polynomial& operator = (newtonian_polynomial&& p) noexcept
 			{
 				_x = std::move(p._x);
 				_c = std::move(p._c);

@@ -1,10 +1,9 @@
 #pragma once
+#include "mathfuncs.h"
 #include <ostream>
 #include <istream>
 #include <string>
 #include <chrono>
-#include "GeneralConstants.h"
-#include "Mathematics.h"
 
 namespace general
 {
@@ -25,39 +24,38 @@ namespace general
 			else return day <= ord_days[month - 1];
 		}
 
-		class DateTime;
+		class datetime;
 
 		/// <summary>
-		/// Class implements date functionality and contains year, month and day
+		/// object contains year, month and day
 		/// </summary>
-		class Date
-		{
-			friend DateTime;
+		class date {
+			friend datetime;
 		private:
 			llong _year{ 1 };
 			ushort _month{ 1 }, _day{ 1 };
 
 		public:
-			constexpr Date() noexcept = default;
-			constexpr Date(const llong year, const ushort month, const ushort day) {
+			constexpr date() noexcept = default;
+			constexpr date(const llong year, const ushort month, const ushort day) {
 				if (month < 1 || month > 12) throw std::invalid_argument("Invalid month!");
 				if (!check(year, month, day)) throw std::invalid_argument("Invalid day!");
 				_year = year;
 				_month = month;
 				_day = day;
 			}
-			Date(const Date& other) = default;
-			Date(Date&& other) noexcept = default;
-			~Date() noexcept = default;
+			date(const date& other) = default;
+			date(date&& other) noexcept = default;
+			~date() noexcept = default;
 
-			Date& operator = (const Date& other) = default;
-			Date& operator = (Date&& other) noexcept = default;
+			date& operator = (const date& other) = default;
+			date& operator = (date&& other) noexcept = default;
 
 			constexpr llong get_year() const noexcept { return _year; }
 			constexpr ushort get_month() const noexcept { return _month; }
 			constexpr ushort get_day() const noexcept { return _day; }
 
-			friend constexpr bool operator > (const Date& f, const Date& s) noexcept {
+			friend constexpr bool operator > (const date& f, const date& s) noexcept {
 				if (f._year > s._year) return true;
 				else if (f._year == s._year) {
 					if (f._month > s._month) return true;
@@ -67,7 +65,7 @@ namespace general
 				}
 				return false;
 			}
-			friend constexpr bool operator < (const Date& f, const Date& s) noexcept {
+			friend constexpr bool operator < (const date& f, const date& s) noexcept {
 				if (f._year < s._year) return true;
 				else if (f._year == s._year) {
 					if (f._month < s._month) return true;
@@ -77,32 +75,31 @@ namespace general
 				}
 				return false;
 			}
-			friend constexpr bool operator == (const Date& f, const Date& s) noexcept {
+			friend constexpr bool operator == (const date& f, const date& s) noexcept {
 				return f._year == s._year && f._month == s._month && f._day == s._day;
 			}
-			friend constexpr bool operator >= (const Date& f, const Date& s) noexcept {
+			friend constexpr bool operator >= (const date& f, const date& s) noexcept {
 				return f > s || f == s;
 			}
-			friend constexpr bool operator <= (const Date& f, const Date& s) noexcept {
+			friend constexpr bool operator <= (const date& f, const date& s) noexcept {
 				return f < s || f == s;
 			}
 
-			friend std::ostream& operator << (std::ostream& o, const Date& d);
-			friend std::istream& operator >> (std::istream& i, Date& d);
+			friend std::ostream& operator << (std::ostream& o, const date& d);
+			friend std::istream& operator >> (std::istream& i, date& d);
 		};
 
 		/// <summary>
-		/// Class implements time of the day and contains hour, minute, second and millisecond
+		/// object contains hour, minute, second and millisecond
 		/// </summary>
-		class Time
-		{
-			friend DateTime;
+		class time {
+			friend datetime;
 		private:
 			ushort _hour{}, _minute{}, _second{}, _millisec{};
 
 		public:
-			constexpr Time() noexcept = default;
-			constexpr Time(const ushort hour, const ushort minute, const ushort second, const ushort millisecond = 0) {
+			constexpr time() noexcept = default;
+			constexpr time(const ushort hour, const ushort minute, const ushort second, const ushort millisecond = 0) {
 				if (hour > 23) throw std::invalid_argument("Invalid hour > 23!");
 				if (minute > 59) throw std::invalid_argument("Invalid minute > 59!");
 				if (second > 59) throw std::invalid_argument("Invalid second > 59!");
@@ -112,19 +109,19 @@ namespace general
 				_second = second;
 				_millisec = millisecond;
 			}
-			Time(const Time& t) = default;
-			Time(Time&& t) noexcept = default;
-			~Time() noexcept = default;
+			time(const time& t) = default;
+			time(time&& t) noexcept = default;
+			~time() noexcept = default;
 
-			Time& operator = (const Time& t) = default;
-			Time& operator = (Time&& t) noexcept = default;
+			time& operator = (const time& t) = default;
+			time& operator = (time&& t) noexcept = default;
 
 			constexpr unsigned short get_hour() const noexcept { return _hour; }
 			constexpr unsigned short get_minute() const noexcept { return _minute; }
 			constexpr unsigned short get_second() const noexcept { return _second; }
 			constexpr unsigned short get_millisecond() const noexcept { return _millisec; }
 
-			friend constexpr bool operator > (const Time& f, const Time& s) noexcept {
+			friend constexpr bool operator > (const time& f, const time& s) noexcept {
 				if (f._hour > s._hour) return true;
 				else if (f._hour == s._hour) {
 					if (f._minute > s._minute) return true;
@@ -137,7 +134,7 @@ namespace general
 				}
 				return false;
 			}
-			friend constexpr bool operator < (const Time& f, const Time& s) noexcept {
+			friend constexpr bool operator < (const time& f, const time& s) noexcept {
 				if (f._hour < s._hour) return true;
 				else if (f._hour == s._hour) {
 					if (f._minute < s._minute) return true;
@@ -150,43 +147,43 @@ namespace general
 				}
 				return false;
 			}
-			friend constexpr bool operator == (const Time& f, const Time& s) noexcept {
+			friend constexpr bool operator == (const time& f, const time& s) noexcept {
 				return f._hour == s._hour && f._minute == s._minute && f._second == s._second && f._millisec == s._millisec;
 			}
-			friend constexpr bool operator >= (const Time& f, const Time& s) noexcept {
+			friend constexpr bool operator >= (const time& f, const time& s) noexcept {
 				return f > s || f == s;
 			}
-			friend constexpr bool operator <= (const Time& f, const Time& s) noexcept {
+			friend constexpr bool operator <= (const time& f, const time& s) noexcept {
 				return f < s || f == s;
 			}
 
-			friend std::ostream& operator << (std::ostream& o, const Time& d);
+			friend std::ostream& operator << (std::ostream& o, const time& d);
 		};
 
 		/// <summary>
-		/// Class implements functionality of date and time of the day
+		/// object implements both date and time of the day
 		/// </summary>
-		class DateTime
+		class datetime
 		{
 		private:
-			Date _date{};
-			Time _time{};
+			date _date{};
+			time _time{};
 
 		public:
-			constexpr DateTime() noexcept = default;
-			constexpr DateTime(const Date& date, const Time& time) : _date{ date }, _time{ time } {}
-			constexpr DateTime(
+			constexpr datetime() noexcept = default;
+			constexpr datetime(const date& d, const time& t) : _date{ d }, _time{ t } {}
+			constexpr datetime(
 				const llong year, const ushort month, const ushort day, 
 				const ushort hour, const ushort minute, const ushort second, const ushort millisecond = 0) :
-				_date{ Date(year, month, day) }, 
-				_time{ Time(hour, minute, second, millisecond) }
+				_date{ date(year, month, day) }, 
+				_time{ time(hour, minute, second, millisecond) }
 			{}
-			DateTime(const DateTime& dt) = default;
-			DateTime(DateTime&& dt) noexcept = default;
-			~DateTime() noexcept = default;
+			datetime(const datetime& dt) = default;
+			datetime(datetime&& dt) noexcept = default;
+			~datetime() noexcept = default;
 
-			constexpr const Date& get_date() const { return _date; }
-			constexpr const Time& get_time() const { return _time; }
+			constexpr const date& get_date() const { return _date; }
+			constexpr const time& get_time() const { return _time; }
 
 			constexpr llong get_year() const { return _date._year; }
 			constexpr ushort get_month() const { return _date._month; }
@@ -196,28 +193,28 @@ namespace general
 			constexpr ushort get_second() const { return _time._second; }
 			constexpr ushort get_millisecond() const { return _time._millisec; }
 
-			DateTime& operator = (const DateTime& dt) = default;
-			DateTime& operator = (DateTime&& dt) noexcept = default;;
+			datetime& operator = (const datetime& dt) = default;
+			datetime& operator = (datetime&& dt) noexcept = default;;
 
-			friend constexpr bool operator > (const DateTime& f, const DateTime& s) noexcept {
+			friend constexpr bool operator > (const datetime& f, const datetime& s) noexcept {
 				return f._date > s._date || (f._date == s._date && f._time > s._time);
 			}
-			friend constexpr bool operator < (const DateTime& f, const DateTime& s) noexcept {
+			friend constexpr bool operator < (const datetime& f, const datetime& s) noexcept {
 				return f._date < s._date || (f._date == s._date && f._time < s._time);
 			}
-			friend constexpr bool operator == (const DateTime& f, const DateTime& s) noexcept {
+			friend constexpr bool operator == (const datetime& f, const datetime& s) noexcept {
 				return f._date == s._date && f._time == s._time;
 			}
-			friend constexpr bool operator >= (const DateTime& f, const DateTime& s) noexcept {
+			friend constexpr bool operator >= (const datetime& f, const datetime& s) noexcept {
 				return f == s || f > s;
 			}
-			friend constexpr bool operator <= (const DateTime& f, const DateTime& s) noexcept {
+			friend constexpr bool operator <= (const datetime& f, const datetime& s) noexcept {
 				return f == s || f < s;
 			}
 
-			friend std::ostream& operator << (std::ostream& o, const DateTime& d);
+			friend std::ostream& operator << (std::ostream& o, const datetime& d);
 
-			static DateTime now();
+			static datetime now();
 		};
 
 		/// <summary>
@@ -226,7 +223,7 @@ namespace general
 		/// <param name="str"> - a string representation of datetime</param>
 		/// <param name="format"> - a string format of datetime representation (y - year, M - month, d - day, h - hour, M - minute, s - second, f - millisecond)</param>
 		/// <returns>a datetime corresponding the string (throws an exception when invalid format)</returns>
-		DateTime datetime_from_str(const std::string& str, const std::string& format = "y/M/d h:m:s.f");
+		datetime datetime_from_str(const std::string& str, const std::string& format = "y/M/d h:m:s.f");
 
 		/// <summary>
 		/// Class implements julian date refered to midnight count down
@@ -241,7 +238,7 @@ namespace general
 
 		public:
 			constexpr JD() noexcept = default;
-			explicit constexpr JD(const DateTime& dt) noexcept {
+			explicit constexpr JD(const datetime& dt) noexcept {
 				llong 
 					a = (14 - dt.get_month()) / 12,
 					y = 4800 + dt.get_year() - a,
@@ -360,7 +357,7 @@ namespace general
 			/// </summary>
 			/// <param name="jd">is a julian date refered to midnight</param>
 			/// <returns>corresponding datetime</returns>
-			friend constexpr DateTime jd_to_datetime(const JD& jd) {
+			friend constexpr datetime jd_to_datetime(const JD& jd) {
 				llong
 					a = jd._day + 32044,
 					b = (4 * a + 3) / 146097,
@@ -380,7 +377,7 @@ namespace general
 				auto minute = static_cast<ushort>(t % 60);
 				t /= 60;
 				auto hour = static_cast<ushort>(t % 24);
-				return DateTime(year, month, day, hour, minute, second, millisec);
+				return datetime(year, month, day, hour, minute, second, millisec);
 			}
 
 			friend std::ostream& operator << (std::ostream& o, const JD& jd);
@@ -388,10 +385,9 @@ namespace general
 		/// <summary>
 		/// A period of time calculator
 		/// </summary>
-		class Stopwatch
+		class stopwatch
 		{
 			std::chrono::steady_clock::time_point _start, _finish;
-
 		public:
 			/// <summary>
 			/// Start to calculate the period of time
@@ -412,7 +408,7 @@ namespace general
 		/// </summary>
 		/// <param name="hour">is time in hours (decimal fromat)</param>
 		/// <returns>(hour, minute, second, millisecond)</returns>
-		inline constexpr Time decimaltime_to_hms(double hour) noexcept {
+		inline constexpr time decimaltime_to_hms(double hour) noexcept {
 			const auto h = static_cast<ushort>(hour);
 			hour -= h;
 			hour *= MIN_PER_HOUR;
@@ -423,7 +419,7 @@ namespace general
 			hour -= s;
 			hour *= MILLISEC_PER_SEC;
 			const auto ms = static_cast<ushort>(hour);
-			return Time{ h, m, s, ms };
+			return time{ h, m, s, ms };
 		}
 	}
 }
